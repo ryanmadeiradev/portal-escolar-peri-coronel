@@ -1,0 +1,14 @@
+# Configurações sensíveis (A MAIS IMPORTANTE)
+CA3/firebase-config.js
+
+# Logs do Firebase e Sistema
+firebase-debug.log
+*.log
+
+# Pastas de IDE e Sistema
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários de texto que você costuma usar para notas
+dados*.txt
