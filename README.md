@@ -1,234 +1,65 @@
-# 🎓 Escola Municipal Prof. Peri Coronel - Sistema de Gestão Escolar
-
+🎓 Escola Municipal Prof. Peri Coronel - Sistema de Gestão Escolar
 Sistema web completo para gestão escolar desenvolvido com Firebase, incluindo portais para administradores, professores e responsáveis.
 
-## 🚀 Funcionalidades
+🚀 Funcionalidades
+Portal do Administrador
+✅ Gestão completa de Notícias (CRUD)
 
-### Portal do Administrador
-- ✅ Gestão completa de **Notícias** (CRUD)
-- ✅ Gestão de **Disciplinas** do boletim
-- ✅ Gestão de **Turmas** e **Alunos**
-- ✅ Cadastro e edição de **Professores**
-- ✅ Cadastro e edição de **Responsáveis**
-- ✅ **Alocação** de professores a turmas e disciplinas
-- ✅ **Sistema de Ano Letivo** com histórico automático
-- ✅ Finalização de ano letivo (move dados para histórico)
+✅ Gestão de Disciplinas do boletim
 
-### Portal do Professor
-- ✅ Visualização de turmas alocadas
-- ✅ Lançamento de **notas** (4 bimestres)
-- ✅ Lançamento de **faltas**
-- ✅ Cálculo automático de médias
-- ✅ Edição de perfil próprio
+✅ Gestão de Turmas e Alunos
 
-### Portal do Responsável
-- ✅ Visualização de **boletim completo** dos filhos
-- ✅ Consulta de notas por bimestre
-- ✅ Consulta de faltas
-- ✅ Acesso seguro via autenticação
+✅ Cadastro e edição de Professores
 
-### Site Público
-- ✅ Informações institucionais (missão, visão, valores)
-- ✅ **Notícias dinâmicas** carregadas do Firebase
-- ✅ Formulário de contato
-- ✅ Mapa de localização integrado
-- ✅ Design responsivo
+✅ Cadastro e edição de Responsáveis
 
-## 🛠️ Tecnologias
+✅ Alocação de professores a turmas e disciplinas
 
-- **Frontend:** HTML5, CSS3, JavaScript ES6+
-- **Backend:** Firebase (Authentication + Firestore)
-- **Hospedagem:** Firebase Hosting
-- **Versionamento:** Git + GitHub
+✅ Sistema de Ano Letivo com histórico automático
 
-## 📦 Estrutura do Projeto
+Portal do Professor
+✅ Visualização de turmas alocadas
 
-```
-CA3/
-├── index.html              # Página principal pública
-├── portal_professor.html   # Portal admin/professor
-├── portal_responsavel.html # Portal dos responsáveis
-├── styles.css              # Estilos globais
-├── logo-lapis.png          # Logo (ícone)
-├── logo-nome.png           # Logo (nome)
-├── .gitignore              # Arquivos ignorados
-└── README.md               # Documentação
-```
+✅ Lançamento de notas (4 bimestres) e faltas
 
-## 🔥 Configuração do Firebase
+✅ Cálculo automático de médias
 
-### 1. Criar Projeto no Firebase Console
-- Acesse https://console.firebase.google.com/
-- Crie um novo projeto
-- Ative **Authentication** (Email/Password)
-- Ative **Firestore Database**
+✅ Edição de perfil próprio
 
-### 2. Configurar Firestore
+Portal do Responsável
+✅ Visualização de boletim completo dos filhos
 
-#### Coleções necessárias:
-- `config` - Configurações do sistema
-- `usuarios` - Perfis de admin/professor/responsavel
-- `alunos` - Dados dos alunos
-- `turmas` - Turmas da escola
-- `disciplinas` - Disciplinas do currículo
-- `alocacoes` - Alocação de professores
-- `notas` - Notas dos alunos (com campo `anoLetivo`)
-- `faltas` - Faltas dos alunos (com campo `anoLetivo`)
-- `noticias` - Notícias do site
-- `historico` - Histórico de anos anteriores
+✅ Consulta de notas e faltas por bimestre
 
-#### Documento de configuração obrigatório:
-```javascript
-// Coleção: config
-// Documento: sistema
-{
-  anoLetivoAtual: 2025
-}
-```
+🧪 Como Testar
+Para validar as diferentes permissões e fluxos do sistema, utilize as credenciais de homologação abaixo:
 
-### 3. Regras de Segurança (Firestore Rules)
+1. Painel do Administrador (Gestão Total)
+Login: admin-pericoronel@admin.com.br
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Configurações (apenas leitura para autenticados)
-    match /config/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    // Usuários
-    match /usuarios/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (
-        request.auth.uid == userId || 
-        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin'
-      );
-    }
-    
-    // Alunos, turmas, disciplinas (admin apenas)
-    match /{collection}/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    // Notícias públicas
-    match /noticias/{noticia} {
-      allow read: if true;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.role == 'admin';
-    }
-  }
-}
-```
+Senha: adminpericoronel
 
-## 🚀 Deploy
+O que testar: Cadastro de novos professores, alocação de disciplinas e gerenciamento de notícias.
 
-### Deploy no Firebase Hosting
+2. Painel do Professor (Diário de Classe)
+Login: ryanmadeira-pericoronel@admin.com.br
 
-```bash
-# Instalar Firebase CLI
-npm install -g firebase-tools
+Senha: ryanpericoronel
 
-# Login no Firebase
-firebase login
+O que testar: Lançamento de notas e faltas para os alunos das turmas vinculadas.
 
-# Inicializar projeto
-firebase init hosting
+3. Painel do Responsável (Consulta de Boletim)
+Login: elias@aluno.com.br
 
-# Deploy
-firebase deploy
-```
+Senha: elias123
 
-## 👤 Primeiro Acesso
+O que testar: Visualização do desempenho acadêmico e notícias da instituição.
 
-### Criar usuário admin manualmente:
+🛠️ Tecnologias
+Frontend: HTML5, CSS3, JavaScript ES6+
 
-1. Acesse o Firebase Console → Authentication
-2. Adicione usuário:
-   - Email: `admin@pericoronel.edu.br`
-   - Senha: (defina uma senha forte)
-3. Copie o UID do usuário
-4. Vá em Firestore → Coleção `usuarios`
-5. Crie documento com ID = UID:
-```javascript
-{
-  nome: "Administrador",
-  email: "admin@pericoronel.edu.br",
-  role: "admin"
-}
-```
+Backend: Firebase (Authentication + Firestore)
 
-## 📊 Sistema de Ano Letivo
+Hospedagem: Firebase Hosting
 
-O sistema gerencia automaticamente os anos letivos:
-
-- **Ano Atual:** Todas as notas/faltas são filtradas pelo ano atual
-- **Histórico:** Mantém dados de 1 ano anterior
-- **Finalização:** Botão "Finalizar Ano Letivo" move dados para histórico e limpa ano atual
-- **IDs Únicos:** Notas e faltas incluem ano no ID: `{alunoId}_{disciplinaId}_{bimestre}_{ano}`
-
-### Finalizar Ano Letivo (Admin):
-1. Acesse Portal do Professor/Admin
-2. Clique em "Finalizar Ano Letivo 2025"
-3. Confirme com senha de admin
-4. Sistema automaticamente:
-   - Move notas/faltas de 2025 para `historico`
-   - Apaga histórico de 2024
-   - Incrementa ano para 2026
-   - Alunos e turmas permanecem (rematricular manualmente)
-
-## 🎨 Customização
-
-### Alterar cores:
-Edite as variáveis CSS em `styles.css`:
-```css
-:root {
-  --color-primary: #5DA7E3;
-  --color-secondary: #C92F2F;
-  --color-text: #333;
-  --color-bg: #f9f9f9;
-}
-```
-
-### Alterar logos:
-Substitua os arquivos:
-- `logo-lapis.png` (ícone)
-- `logo-nome.png` (nome da escola)
-
-## 📝 Credenciais de Exemplo
-
-**Admin:**
-- Email: `admin@pericoronel.edu.br`
-- Senha: (definida por você)
-
-**Professor:**
-- Email: `professor@pericoronel.edu.br`
-- Senha: (cadastrado pelo admin)
-
-**Responsável:**
-- Email: `responsavel@pericoronel.edu.br`
-- Senha: (cadastrado pelo admin)
-
-## 🔒 Segurança
-
-- ✅ Autenticação Firebase
-- ✅ Regras de segurança Firestore
-- ✅ Validação de email duplicado
-- ✅ Senhas armazenadas com hash (Firebase Auth)
-- ✅ Separação de roles (admin/professor/responsavel)
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, entre em contato:
-- 📧 Email: contato@pericoronel.edu.br
-- 📞 Telefone: (53) 3241-8607
-- 📍 Endereço: Rua Getulio de Souza Pereira, 150 - Bagé/RS
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para uso exclusivo da Escola Municipal Prof. Peri Coronel.
-
----
-
-**Desenvolvido com ❤️ para educação de qualidade**
+Versionamento: Git + GitHub
