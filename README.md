@@ -38,23 +38,26 @@ Sistema web completo para gestão escolar desenvolvido com Firebase, incluindo p
 Para validar as diferentes permissões e fluxos do sistema, utilize as credenciais de homologação abaixo:
 
 1. Painel do Administrador (Gestão Total)
-Login: admin-pericoronel@admin.com.br
 
-Senha: adminpericoronel
+    Login: admin-pericoronel@admin.com.br
+
+    Senha: adminpericoronel
 
 O que testar: Cadastro de novos professores, alocação de disciplinas e gerenciamento de notícias.
 
 2. Painel do Professor (Diário de Classe)
-Login: ryanmadeira-pericoronel@admin.com.br
 
-Senha: ryanpericoronel
+    Login: ryanmadeira-pericoronel@admin.com.br
+
+    Senha: ryanpericoronel
 
 O que testar: Lançamento de notas e faltas para os alunos das turmas vinculadas.
 
 3. Painel do Responsável (Consulta de Boletim)
-Login: elias@aluno.com.br
 
-Senha: elias123
+    Login: elias@aluno.com.br
+
+    Senha: elias123
 
 O que testar: Visualização do desempenho acadêmico e notícias da instituição.
 
