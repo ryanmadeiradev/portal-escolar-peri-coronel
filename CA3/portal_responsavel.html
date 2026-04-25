@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal do Responsável | Escola Prof. Peri Coronel</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" defer>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__content">
+      <div class="logo">
+        <img src="logo-lapis.png" alt="Ícone" class="logo__icone"><img src="logo-nome.png" alt="Escola" class="logo__nome">
+      </div>
+      <nav class="navbar" role="navigation">
+        <ul class="navbar__list">
+          <li class="navbar__item"><a href="index.html">Início</a></li>
+          <li class="navbar__item" id="btn-meu-perfil-resp" style="display: none;"><a href="#">Meu Perfil</a></li>
+          <li class="navbar__item" id="nav-sair" style="display: none;"><a href="#" id="logout-button">Sair</a></li>
+        </ul>
+      </nav>
+      <button class="menu-hamburguer" aria-label="Abrir menu"><span class="menu-hamburguer__linha"></span><span class="menu-hamburguer__linha"></span><span class="menu-hamburguer__linha"></span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="portal-login" id="secao-login">
+      <div class="login-container">
+        <h2>Área do Responsável</h2>
+        <form id="login-form" class="login-form">
+          <label for="usuario" class="login-form__label">E-mail</label>
+          <input type="email" id="usuario" placeholder="Digite seu e-mail" required class="login-form__input" autocomplete="email" />
+          <label for="senha" class="login-form__label">Senha</label>
+          <input type="password" id="senha" placeholder="Digite sua senha" required class="login-form__input" autocomplete="current-password" />
+          <button type="submit" class="login-form__button">Entrar</button>
+          <p style="margin-top:8px"><a href="#" id="forgot-password-resp" style="font-size:0.95rem">Esqueceu a senha?</a></p>
+          <p id="login-error-message" style="color: red; display: none; margin-top: 10px;"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="portal-conteudo" id="portal-responsavel" style="display: none;">
+      <div class="container">
+        <h2>Painel do Responsável</h2>
+        <div id="filhos-container">
+            <p>Carregando informações...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container"><p>© 2025 Escola Municipal Prof. Peri Coronel</p></div>
+  </footer>
+  
+  <script>
+    document.querySelector('.menu-hamburguer').addEventListener('click', () => {
+      document.querySelector('.navbar__list').classList.toggle('active');
+    });
+  </script>
+
+  <div id="modal-editar-resp" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-editar-resp-close">&times;</button>
+      <h2>Editar Perfil</h2>
+      <form id="modal-editar-resp-form" class="portal-form">
+        <label>Nome</label><input type="text" name="nome" id="perfil-resp-nome" required>
+        <p style="font-size:0.9rem;color:#666">Para alterar e-mail ou senha, use "Esqueceu a senha?". Alteração de e‑mail requer reautenticação.</p>
+        <button type="submit" class="modal-save-button">Salvar</button>
+      </form>
+      <p id="modal-editar-resp-feedback"></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const secaoLogin = document.getElementById('secao-login'), portalResponsavel = document.getElementById('portal-responsavel'), filhosContainer = document.getElementById('filhos-container'), loginForm = document.getElementById('login-form'), navSair = document.getElementById('nav-sair'), loginErrorMessage = document.getElementById('login-error-message');
+    const forgotPasswordResp = document.getElementById('forgot-password-resp');
+    const btnMeuPerfilResp = document.getElementById('btn-meu-perfil-resp');
+    const modalEditarResp = document.getElementById('modal-editar-resp');
+    const modalEditarRespClose = document.getElementById('modal-editar-resp-close');
+    const modalEditarRespForm = document.getElementById('modal-editar-resp-form');
+    const modalEditarRespFeedback = document.getElementById('modal-editar-resp-feedback');
+    const perfilRespNome = document.getElementById('perfil-resp-nome');
+
+    async function buscarDadosDosAlunos(responsavelUid) {
+        filhosContainer.innerHTML = '<p>Buscando alunos vinculados...</p>';
+        const qAluno = query(collection(db, "alunos"), where("responsavelUid", "==", responsavelUid));
+        const snapshotAluno = await getDocs(qAluno);
+        
+        if (snapshotAluno.empty) { 
+            filhosContainer.innerHTML = "<p class='info-aluno-box'>Nenhum aluno vinculado a esta conta.</p>"; 
+            return; 
+        }
+
+        filhosContainer.innerHTML = '';
+        for (const alunoDoc of snapshotAluno.docs) {
+            const alunoData = alunoDoc.data();
+            const alunoId = alunoDoc.id;
+
+            const alunoCard = document.createElement('div');
+            alunoCard.className = 'info-aluno-box';
+            alunoCard.style.marginBottom = '40px';
+            alunoCard.innerHTML = `
+                <h3>${alunoData.nomeCompleto}</h3>
+                <p>Matrícula: ${alunoData.matricula}</p>
+                <hr style="margin: 20px 0;">
+                <h4>Boletim</h4>
+                <div class="boletim-container">
+                  <table id="tabela-boletim-${alunoId}">
+                    <thead>
+                      <tr><th>Disciplina</th><th>1ºB</th><th>2ºB</th><th>3ºB</th><th>4ºB</th><th>Faltas</th><th>Soma</th><th>Média</th></tr>
+                    </thead>
+                    <tbody id="corpo-tabela-${alunoId}"><tr><td colspan="8">Carregando notas...</td></tr></tbody>
+                  </table>
+                </div>
+            `;
+            filhosContainer.appendChild(alunoCard);
+
+            await buscarBoletim(alunoId);
+        }
+    }
+
+    async function buscarBoletim(alunoId) {
+        const corpoTabela = document.getElementById(`corpo-tabela-${alunoId}`);
+        if (!corpoTabela) return;
+
+        try {
+            const dQuery=query(collection(db,"disciplinas"),orderBy("ordem")), nQuery=query(collection(db,"notas"),where("alunoId","==",alunoId)), fQuery=query(collection(db,"faltas"),where("alunoId","==",alunoId));
+            const [dS,nS,fS]=await Promise.all([getDocs(dQuery),getDocs(nQuery),getDocs(fQuery)]);
+            const nPD={}, fPD={};
+            nS.forEach(d=>{const n=d.data(); if(!nPD[n.disciplinaId])nPD[n.disciplinaId]={}; nPD[n.disciplinaId][n.bimestre]=n.valor;});
+            fS.forEach(d=>fPD[d.data().disciplinaId]=d.data().total);
+            
+            let tabelaHtml = '';
+            if (dS.empty) {
+                tabelaHtml = '<tr><td colspan="8">Nenhuma disciplina cadastrada no sistema.</td></tr>';
+            } else {
+                dS.forEach(d => {
+                    const discId = d.id;
+                    const disc = d.data();
+                    let soma = 0, count = 0;
+                    const notasDaDisciplina = nPD[discId] || {};
+                    for (const bimestre in notasDaDisciplina) { soma += notasDaDisciplina[bimestre]; count++; }
+                    const media = count > 0 ? (soma / count).toFixed(1) : '-';
+                    const somaDisplay = count > 0 ? soma.toFixed(1) : '-';
+                    tabelaHtml += `<tr><td>${disc.nome}</td><td>${notasDaDisciplina[1]||'-'}</td><td>${notasDaDisciplina[2]||'-'}</td><td>${notasDaDisciplina[3]||'-'}</td><td>${notasDaDisciplina[4]||'-'}</td><td>${fPD[discId]||'0'}</td><td>${somaDisplay}</td><td>${media}</td></tr>`;
+                });
+            }
+            corpoTabela.innerHTML = tabelaHtml;
+        } catch (error) {
+            console.error("Erro ao buscar boletim:", error);
+            corpoTabela.innerHTML = '<tr><td colspan="8">Ocorreu um erro ao carregar as notas.</td></tr>';
+        }
+    }
+
+    // Lógica de autenticação
+    onAuthStateChanged(auth, async (user) => { 
+        if (user) { 
+            try { 
+                const docRef = doc(db, 'usuarios', user.uid);
+                const docSnap = await getDoc(docRef); 
+                
+                if (docSnap.exists() && docSnap.data().role === 'responsavel') { 
+                    secaoLogin.style.display = 'none'; 
+                    portalResponsavel.style.display = 'block'; 
+                    navSair.style.display = 'block'; 
+                    
+                    // CORREÇÃO: Verificação de segurança (caso o HTML mude no futuro)
+                    if(btnMeuPerfilResp) btnMeuPerfilResp.style.display = 'inline-block'; 
+                    
+                    await buscarDadosDosAlunos(user.uid); 
+                } else { 
+                    throw new Error("Permissão inválida."); 
+                } 
+            } catch (error) { 
+                console.error(error.message); 
+                await signOut(auth); 
+                loginErrorMessage.textContent = "Acesso negado. Esta conta não é de um responsável."; 
+                loginErrorMessage.style.display = 'block'; 
+            } 
+        } else { 
+            secaoLogin.style.display = 'flex'; 
+            portalResponsavel.style.display = 'none'; 
+            navSair.style.display = 'none'; 
+            
+            // CORREÇÃO: Verificação de segurança
+            if(btnMeuPerfilResp) btnMeuPerfilResp.style.display = 'none'; 
+        } 
+    });
+
+    loginForm.addEventListener('submit', (e) => { e.preventDefault(); loginErrorMessage.style.display='none'; signInWithEmailAndPassword(auth, document.getElementById('usuario').value, document.getElementById('senha').value).catch(() => { loginErrorMessage.textContent = "E-mail ou senha incorretos."; loginErrorMessage.style.display = 'block'; }); });
+    navSair.addEventListener('click', (e) => { e.preventDefault(); signOut(auth); });
+
+    if (forgotPasswordResp) {
+      forgotPasswordResp.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const email = document.getElementById('usuario').value;
+        if (!email) { alert('Digite seu e-mail no campo acima para receber o link de recuperação.'); return; }
+        sendPasswordResetEmail(auth, email).then(() => {
+          alert('E-mail de recuperação enviado. Verifique sua caixa de entrada.');
+        }).catch(err => {
+          console.error(err);
+          alert('Não foi possível enviar o e-mail de recuperação: ' + err.message);
+        });
+      });
+    }
+
+    if (btnMeuPerfilResp) {
+      btnMeuPerfilResp.addEventListener('click', async () => {
+        const uid = auth.currentUser.uid;
+        const snap = await getDoc(doc(db,'usuarios', uid));
+        perfilRespNome.value = snap.exists()?snap.data().nome||'':'';
+        modalEditarResp.style.display = 'flex';
+      });
+    }
+    modalEditarRespClose.addEventListener('click', ()=> modalEditarResp.style.display = 'none');
+    modalEditarResp.addEventListener('click', e => { if (e.target === modalEditarResp) modalEditarResp.style.display = 'none'; });
+
+    modalEditarRespForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      modalEditarRespFeedback.textContent = 'Salvando...';
+      try {
+        const uid = auth.currentUser.uid;
+        const nome = perfilRespNome.value.trim();
+        if (!nome) throw new Error('Nome obrigatório.');
+        await updateDoc(doc(db,'usuarios', uid), { nome });
+        modalEditarRespFeedback.style.color='green';
+        modalEditarRespFeedback.textContent='Perfil atualizado!';
+        setTimeout(()=> modalEditarResp.style.display='none',800);
+      } catch (err) {
+        modalEditarRespFeedback.style.color='red';
+        modalEditarRespFeedback.textContent='Erro: ' + (err.message||err);
+      }
+    });
+  </script>
+</body>
+</html>

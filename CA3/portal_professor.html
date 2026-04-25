@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal do Professor | Escola Prof. Peri Coronel</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" defer>
+</head>
+<body>
+
+  <header class="header">
+    <div class="container header__content">
+      <div class="logo">
+        <img src="logo-lapis.png" alt="Ícone" class="logo__icone"><img src="logo-nome.png" alt="Escola" class="logo__nome">
+      </div>
+      <nav class="navbar" role="navigation">
+        <ul class="navbar__list">
+          <li class="navbar__item"><a href="index.html">Início</a></li>
+          <li class="navbar__item" id="nav-sair" style="display: none;"><a href="#" id="logout-button">Sair</a></li>
+        </ul>
+      </nav>
+      <button class="menu-hamburguer" aria-label="Abrir menu"><span class="menu-hamburguer__linha"></span><span class="menu-hamburguer__linha"></span><span class="menu-hamburguer__linha"></span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="portal-login" id="secao-login">
+      <div class="login-container">
+        <h2>Área do Professor / Admin</h2>
+        <form id="login-form" class="login-form">
+          <label for="usuario" class="login-form__label">E-mail</label>
+          <input type="email" id="usuario" placeholder="Digite seu e-mail" required class="login-form__input" autocomplete="email" />
+          <label for="senha" class="login-form__label">Senha</label>
+          <input type="password" id="senha" placeholder="Digite sua senha" required class="login-form__input" autocomplete="current-password" />
+          <button type="submit" class="login-form__button">Entrar</button>
+          <p style="margin-top:8px"><a href="#" id="forgot-password" style="font-size:0.95rem">Esqueceu a senha?</a></p>
+          <p id="login-error-message" style="color: red; display: none; margin-top: 10px;"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="portal-conteudo" id="portal-conteudo" style="display: none;">
+      <div class="container">
+        
+        <div id="admin-dashboard" style="display: none;">
+            <div style="text-align:right; margin-bottom:10px;">
+              <button id="btn-meu-perfil" class="portal-form button" style="background:var(--color-primary); color:#fff; padding:8px 12px; border-radius:6px;">Meu Perfil</button>
+            </div>
+
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:15px; background:#f0f8ff; border-radius:8px; border:2px solid var(--color-primary);">
+              <div>
+                <h3 style="margin:0; color:var(--color-primary);">Ano Letivo: <span id="ano-letivo-display">2025</span></h3>
+                <p style="margin:5px 0 0 0; font-size:0.9rem; color:#666;">Sistema gerencia automaticamente o ano atual e 1 ano de histórico</p>
+              </div>
+              <div style="display:flex; gap:10px;">
+                <button id="btn-ver-historico" class="portal-form button" style="background:#6c757d; color:#fff; padding:8px 16px; border-radius:6px;">Ver Histórico</button>
+                <button id="btn-finalizar-ano" class="portal-form button" style="background:var(--color-secondary); color:#fff; padding:8px 16px; border-radius:6px;">Finalizar Ano Letivo</button>
+              </div>
+            </div>
+
+            <h2>Painel do Administrador</h2>
+            <hr>
+
+            <div class="form-section">
+                <h3>Gerenciar Notícias do Site</h3>
+                <form id="form-add-noticia" class="portal-form">
+                    <input type="text" id="noticia-titulo" placeholder="Título da Notícia" required>
+                    <textarea id="noticia-conteudo" placeholder="Conteúdo/Resumo (aparece no card)" required rows="3"></textarea>
+                    <textarea id="noticia-detalhes" placeholder="Detalhes da Notícia (aparece no modal)" rows="6"></textarea>
+                    <input type="url" id="noticia-link" placeholder="Link Externo 'Ler Mais' (opcional)">
+                    <button type="submit">Publicar Notícia</button>
+                </form>
+                <p id="add-noticia-feedback" style="margin-top: 10px;"></p>
+                <h4 style="margin-top: 20px;">Notícias Publicadas</h4>
+                <div id="lista-noticias"></div>
+            </div>
+
+            <hr style="margin: 40px 0;">
+
+            <div class="form-section">
+                <h3>Gerenciar Disciplinas do Boletim</h3>
+                <form id="form-add-disciplina" class="portal-form">
+                    <input type="text" id="disciplina-nome" placeholder="Nome da nova disciplina" required>
+                    <button type="submit">Adicionar Disciplina</button>
+                </form>
+                <p id="add-disciplina-feedback" style="margin-top: 10px;"></p>
+                <h4 style="margin-top: 20px;">Disciplinas Atuais</h4>
+                <div id="lista-disciplinas"></div>
+            </div>
+
+            <hr style="margin: 40px 0;">
+
+            <div class="form-section">
+                <h3>Gerenciar Turmas</h3>
+                <form id="form-add-turma" class="portal-form">
+                    <input type="text" id="turma-nome" placeholder="Nome da nova turma (ex: 6º Ano A)" required>
+                    <button type="submit">Criar Turma</button>
+                </form>
+                <p id="add-turma-feedback" style="margin-top: 10px;"></p>
+                <h4 style="margin-top: 20px;">Turmas Existentes</h4>
+                <div id="lista-turmas-admin"></div>
+            </div>
+
+            <hr style="margin: 40px 0;">
+            
+            <div class="form-section">
+                <h3>Gerenciar Alunos</h3>
+                <label for="admin-turma-select-aluno">Selecione a Turma para Adicionar/Ver Alunos:</label>
+                <select id="admin-turma-select-aluno" class="portal-form-select"></select>
+                
+                <div id="admin-aluno-container" style="display: none;">
+                    <form id="form-admin-add-aluno" class="portal-form" style="margin-top:15px;">
+                        <input type="text" id="admin-aluno-nome" placeholder="Nome completo do aluno" required>
+                        <input type="text" id="admin-aluno-matricula" placeholder="Número da matrícula" required>
+                        <button type="submit">Adicionar Aluno</button>
+                    </form>
+                    <p id="admin-add-aluno-feedback" style="margin-top: 10px;"></p>
+                    <h4 style="margin-top: 20px;">Alunos nesta Turma</h4>
+                    <div id="lista-alunos-admin"></div>
+                </div>
+            </div>
+
+            <hr style="margin: 40px 0;">
+
+            <div class="form-section">
+                <h3>Alocar Professores às Turmas</h3>
+                <form id="form-alocar-professor" class="portal-form">
+                    <label for="aloc-professor">Professor:</label>
+                    <select id="aloc-professor" required></select>
+                    
+                    <label for="aloc-turma">Turma:</label>
+                    <select id="aloc-turma" required></select>
+                    
+                    <label for="aloc-disciplina">Disciplina:</label>
+                    <select id="aloc-disciplina" required></select>
+                    
+                    <button type="submit">Alocar Professor</button>
+                </form>
+                <p id="aloc-feedback" style="margin-top: 10px;"></p>
+                <h4 style="margin-top: 20px;">Alocações Atuais</h4>
+                <div id="lista-alocacoes"></div>
+            </div>
+
+            <hr style="margin: 40px 0;">
+
+            <div class="form-section">
+                <h3>Cadastrar Novo Professor</h3>
+                <form id="form-add-professor" class="portal-form">
+                    <input type="text" id="prof-nome" placeholder="Nome completo do professor" required>
+                    <input type="email" id="prof-email" placeholder="E-mail de login" required>
+                    <input type="password" id="prof-senha" placeholder="Senha provisória" required>
+                    <button type="submit">Cadastrar Professor</button>
+                </form>
+                <p id="add-professor-feedback" style="margin-top: 10px;"></p>
+                <h3 style="margin-top: 40px;">Professores Cadastrados</h3>
+                <div id="lista-professores"></div>
+            </div>
+            
+            <hr style="margin: 40px 0;">
+
+            <div class="form-section">
+                <h3>Criar Acesso de Responsável</h3>
+                <p>Crie ou vincule um responsável a um aluno existente usando o número da matrícula.</p>
+                <form id="form-add-responsavel" class="portal-form">
+                    <h4>Dados do Responsável</h4>
+                    <input type="text" id="resp-nome" placeholder="Nome completo do responsável" required>
+                    <input type="email" id="resp-email" placeholder="E-mail de login do responsável" required>
+                    <input type="password" id="resp-senha" placeholder="Senha (só necessária se for novo)">
+                    <h4 style="margin-top: 20px;">Vincular ao Aluno</h4>
+                    <input type="text" id="aluno-matricula-vincular" placeholder="Digite a matrícula do aluno" required>
+                    <button type="submit">Criar Acesso e Vincular</button>
+                </form>
+                <p id="add-responsavel-feedback" style="margin-top: 10px;"></p>
+            </div>
+            
+            <hr style="margin: 40px 0;">
+
+            <div class="form-section">
+                <h3>Gerenciar Responsáveis Cadastrados</h3>
+                <p>Abaixo estão todos os responsáveis com acesso.</p>
+                <h4 style="margin-top: 20px;">Responsáveis Atuais</h4>
+                <div id="lista-responsaveis"></div>
+            </div>
+
+        </div>
+
+        <div id="professor-dashboard" style="display: none;">
+            <h2>Painel do Professor</h2>
+            
+            <div class="seletor-turma">
+                <label for="turmas-select">Minhas Turmas Alocadas:</label>
+                <select id="turmas-select">
+                    <option value="">Selecione uma turma para gerenciar...</option>
+                </select>
+            </div>
+
+            <div id="alunos-management-container" style="display: none;">
+                <h3 style="margin-top: 40px;">Alunos da Turma</h3>
+                <div id="lista-alunos"></div>
+            </div>
+        </div>
+
+      </div>
+    </section>
+    
+    <div id="modal-notas" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+        <button class="modal-close" id="modal-close-button">&times;</button>
+        <h2 id="modal-aluno-nome">Lançar Notas/Faltas para...</h2>
+        <div class="boletim-container">
+          <table id="tabela-boletim">
+            <thead>
+              <tr>
+                <th>Disciplina</th>
+                <th>1º Bimestre</th>
+                <th>2º Bimestre</th>
+                <th>3º Bimestre</th>
+                <th>4º Bimestre</th>
+                <th>Faltas</th>
+                <th>Soma</th>
+                <th>Média</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela-boletim"></tbody>
+          </table>
+        </div>
+        <button id="salvar-notas-btn" class="modal-save-button">Salvar Alterações</button>
+        <p id="feedback-salvar-notas"></p>
+      </div>
+    </div>
+
+    <!-- Modal genérico para edição (notícia, disciplina, turma, aluno, responsavel, perfil) -->
+    <div id="modal-editar" class="modal-overlay" style="display:none;">
+      <div class="modal-content">
+        <button class="modal-close" id="modal-editar-close">&times;</button>
+        <h2 id="modal-editar-titulo">Editar</h2>
+        <form id="modal-editar-form" class="portal-form">
+          <div id="modal-editar-campos"></div>
+          <button type="submit" id="modal-editar-salvar" class="modal-save-button">Salvar</button>
+        </form>
+        <p id="modal-editar-feedback" style="margin-top:10px;"></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"><p>© 2025 Escola Municipal Prof. Peri Coronel</p></div>
+  </footer>
+
+  <script>
+    document.querySelector('.menu-hamburguer').addEventListener('click', () => {
+      document.querySelector('.navbar__list').classList.toggle('active');
+    });
+  </script>
+
+  <script type="module">
+    // --- IMPORTAÇÕES ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, updateDoc, writeBatch, orderBy, deleteDoc, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { firebaseConfig } from './firebase-config.js';
+    // --- CONFIGURAÇÃO ---
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- SELETORES GLOBAIS ---
+    const secaoLogin=document.getElementById('secao-login'), portalConteudo=document.getElementById('portal-conteudo'), loginForm=document.getElementById('login-form'), loginErrorMessage=document.getElementById('login-error-message'), navSair=document.getElementById('nav-sair');
+    const adminDashboard=document.getElementById('admin-dashboard'), professorDashboard=document.getElementById('professor-dashboard');
+    const formAddNoticia = document.getElementById('form-add-noticia'), feedbackNoticia = document.getElementById('add-noticia-feedback'), listaNoticias = document.getElementById('lista-noticias');
+    const formAddDisciplina = document.getElementById('form-add-disciplina'), feedbackDisciplina = document.getElementById('add-disciplina-feedback'), listaDisciplinas = document.getElementById('lista-disciplinas');
+    const formAddTurma = document.getElementById('form-add-turma'), feedbackTurma = document.getElementById('add-turma-feedback'), listaTurmasAdmin = document.getElementById('lista-turmas-admin');
+    const formAdminAddAluno = document.getElementById('form-admin-add-aluno'), adminFeedbackAluno = document.getElementById('admin-add-aluno-feedback'), listaAlunosAdmin = document.getElementById('lista-alunos-admin'), adminTurmaSelectAluno = document.getElementById('admin-turma-select-aluno'), adminAlunoContainer = document.getElementById('admin-aluno-container');
+    const formAlocarProfessor = document.getElementById('form-alocar-professor'), alocProfessorSelect = document.getElementById('aloc-professor'), alocTurmaSelect = document.getElementById('aloc-turma'), alocDisciplinaSelect = document.getElementById('aloc-disciplina'), alocFeedback = document.getElementById('aloc-feedback'), listaAlocacoes = document.getElementById('lista-alocacoes');
+    const formAddProfessor=document.getElementById('form-add-professor'), feedbackProfessor=document.getElementById('add-professor-feedback'), listaProfessores=document.getElementById('lista-professores');
+    const formAddResponsavel=document.getElementById('form-add-responsavel'), feedbackResponsavel=document.getElementById('add-responsavel-feedback'), listaResponsaveis = document.getElementById('lista-responsaveis');
+    const turmasSelect=document.getElementById('turmas-select'), listaAlunos=document.getElementById('lista-alunos'), alunosManagementContainer=document.getElementById('alunos-management-container');
+    const modalNotas=document.getElementById('modal-notas'), modalCloseButton=document.getElementById('modal-close-button'), modalAlunoNome=document.getElementById('modal-aluno-nome'), corpoTabelaBoletim=document.getElementById('corpo-tabela-boletim'), salvarNotasBtn=document.getElementById('salvar-notas-btn'), feedbackSalvarNotas=document.getElementById('feedback-salvar-notas');
+    const forgotPasswordLink = document.getElementById('forgot-password');
+    const modalEditar = document.getElementById('modal-editar'), modalEditarClose = document.getElementById('modal-editar-close'), modalEditarTitulo = document.getElementById('modal-editar-titulo'), modalEditarCampos = document.getElementById('modal-editar-campos'), modalEditarForm = document.getElementById('modal-editar-form'), modalEditarFeedback = document.getElementById('modal-editar-feedback'), btnMeuPerfil = document.getElementById('btn-meu-perfil');
+    let alunoIdAtual = null;
+
+    // === SISTEMA DE ANO LETIVO ===
+    let anoLetivoAtual = 2025;
+
+    async function carregarAnoLetivo() {
+      try {
+        const configDoc = await getDoc(doc(db, 'config', 'sistema'));
+        if (configDoc.exists()) {
+          anoLetivoAtual = configDoc.data().anoLetivoAtual || 2025;
+        } else {
+          await setDoc(doc(db, 'config', 'sistema'), { anoLetivoAtual: 2025 });
+          anoLetivoAtual = 2025;
+        }
+        const anoDisplay = document.getElementById('ano-letivo-display');
+        if (anoDisplay) anoDisplay.textContent = anoLetivoAtual;
+      } catch (err) {
+        console.error('Erro ao carregar ano letivo:', err);
+        anoLetivoAtual = 2025;
+      }
+    }
+
+
+    // --- SEÇÃO DE LOGIN ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+            await carregarAnoLetivo();
+                const docRef = doc(db, 'usuarios', user.uid);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) { throw new Error("Perfil não encontrado."); }
+                const role = docSnap.data().role;
+                secaoLogin.style.display='none'; adminDashboard.style.display='none'; professorDashboard.style.display='none'; portalConteudo.style.display='block'; navSair.style.display='block';
+                
+                if (role === 'admin') {
+                    adminDashboard.style.display = 'block';
+                    await carregarNoticiasAdmin();
+                    await carregarDisciplinas();
+                    await carregarTurmasAdmin();
+                    await carregarProfessores();
+                    await carregarResponsaveis();
+                    await popularDropdownsAlocacao();
+                    await carregarAlocacoes();
+                    await popularDropdownAlunosAdmin();
+                } else if (role === 'professor') {
+                    professorDashboard.style.display = 'block';
+                    await carregarTurmasProfessor(user.uid);
+                } else {
+                    throw new Error("Permissão inválida.");
+                }
+            } catch (error) { console.error("Erro de autenticação:", error.message); await signOut(auth); }
+        } else {
+            secaoLogin.style.display = 'flex';
+            portalConteudo.style.display = 'none';
+            navSair.style.display = 'none';
+        }
+    });
+    
+    loginForm.addEventListener('submit', (e) => { e.preventDefault(); loginErrorMessage.style.display = 'none'; signInWithEmailAndPassword(auth,document.getElementById('usuario').value,document.getElementById('senha').value).catch(() => { loginErrorMessage.textContent="E-mail ou senha incorretos."; loginErrorMessage.style.display='block'; }); });
+    navSair.addEventListener('click', (e) => { e.preventDefault(); signOut(auth); });
+
+    // --- Recuperação de senha ---
+    if (forgotPasswordLink) {
+      forgotPasswordLink.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const email = document.getElementById('usuario').value;
+        if (!email) { alert('Digite seu e-mail no campo acima para receber o link de recuperação.'); return; }
+        sendPasswordResetEmail(auth, email).then(() => {
+          alert('E-mail de recuperação enviado. Verifique sua caixa de entrada.');
+        }).catch(err => {
+          console.error(err);
+          alert('Não foi possível enviar o e-mail de recuperação: ' + err.message);
+        });
+      });
+    }
+
+    // --- FUNÇÕES DO ADMIN ---
+    
+    // Notícias (adicionada opção editar)
+    formAddNoticia.addEventListener('submit', async e => { e.preventDefault(); feedbackNoticia.textContent = 'Publicando...'; const titulo = document.getElementById('noticia-titulo').value; const conteudo = document.getElementById('noticia-conteudo').value; const detalhes = document.getElementById('noticia-detalhes').value; const link = document.getElementById('noticia-link').value; try { await addDoc(collection(db, 'noticias'), { titulo, conteudo, detalhes: detalhes || null, link: link || null, dataPublicacao: serverTimestamp() }); feedbackNoticia.textContent = 'Notícia publicada!'; formAddNoticia.reset(); await carregarNoticiasAdmin(); } catch (err) { feedbackNoticia.textContent = 'Erro: ' + err.message; } });
+
+    async function carregarNoticiasAdmin() {
+      listaNoticias.innerHTML = '<p>Carregando...</p>';
+      const q = query(collection(db, "noticias"), orderBy("dataPublicacao", "desc"));
+      const ss = await getDocs(q);
+      if (ss.empty) { listaNoticias.innerHTML = '<p>Nenhuma notícia publicada.</p>'; return; }
+      listaNoticias.innerHTML = '';
+      ss.forEach(d => {
+        const n = d.data();
+        const data = n.dataPublicacao ? new Date(n.dataPublicacao.seconds * 1000).toLocaleDateString('pt-BR') : '';
+        listaNoticias.innerHTML += `
+          <div class="item-lista noticia-item">
+            <div><strong>${n.titulo}</strong><p>${n.conteudo||''}</p><small>Publicado em: ${data}</small></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-editar-noticia" data-id="${d.id}">Editar</button>
+              <button class="btn-excluir-noticia" data-id="${d.id}">&times;</button>
+            </div>
+          </div>`;
+      });
+    }
+
+    listaNoticias.addEventListener('click', async e => {
+      const t = e.target;
+      if (t.classList.contains('btn-excluir-noticia')) {
+        const id = t.dataset.id;
+        if (confirm('Excluir esta notícia?')) { await deleteDoc(doc(db,'noticias',id)); carregarNoticiasAdmin(); }
+      } else if (t.classList.contains('btn-editar-noticia')) {
+        const id = t.dataset.id;
+        const docSnap = await getDoc(doc(db,'noticias',id));
+        abrirModalEditar({ tipo: 'Notícia', id, dados: docSnap.exists()?docSnap.data():{} });
+      }
+    });
+
+    // Disciplinas
+    formAddDisciplina.addEventListener('submit', async e => { e.preventDefault(); feedbackDisciplina.textContent='Adicionando...'; const nome=document.getElementById('disciplina-nome').value; try { const q=query(collection(db,"disciplinas"),orderBy("ordem","desc"),limit(1)); const lastDocSnap=await getDocs(q); const proximaOrdem=lastDocSnap.empty?1:lastDocSnap.docs[0].data().ordem+1; await addDoc(collection(db,'disciplinas'),{nome:nome,ordem:proximaOrdem}); feedbackDisciplina.textContent='Disciplina adicionada!'; formAddDisciplina.reset(); await carregarDisciplinas(); await popularDropdownsAlocacao();}catch(err){feedbackDisciplina.textContent='Erro: '+err.message;}});
+
+    async function carregarDisciplinas() { const q=query(collection(db,"disciplinas"),orderBy("ordem")), ss=await getDocs(q); listaDisciplinas.innerHTML=''; ss.forEach(d=>listaDisciplinas.innerHTML+=`<div class="disciplina-item"><span>${d.data().nome}</span><div style="display:flex;gap:8px"><button class="btn-editar-disciplina" data-id="${d.id}">Editar</button><button class="btn-excluir-disciplina" data-id="${d.id}">&times;</button></div></div>`);}
+
+    listaDisciplinas.addEventListener('click', async e => {
+      if(e.target.classList.contains('btn-excluir-disciplina')){
+        const id=e.target.dataset.id; if(confirm('Tem certeza? Isso pode afetar boletins.')){ try{ await deleteDoc(doc(db,'disciplinas',id)); carregarDisciplinas(); popularDropdownsAlocacao(); carregarAlocacoes(); } catch(err){ alert('Erro ao excluir.'); } }
+      } else if (e.target.classList.contains('btn-editar-disciplina')) {
+        const id = e.target.dataset.id; const snap = await getDoc(doc(db,'disciplinas',id)); abrirModalEditar({ tipo:'Disciplina', id, dados: snap.exists()?snap.data():{} });
+      }
+    });
+
+    // Turmas (Admin)
+    formAddTurma.addEventListener('submit', async e => { e.preventDefault(); const n=document.getElementById('turma-nome').value; try { await addDoc(collection(db,'turmas'),{ano:n}); feedbackTurma.textContent='Turma criada!'; formAddTurma.reset(); carregarTurmasAdmin(); popularDropdownsAlocacao(); popularDropdownAlunosAdmin();} catch(err){feedbackTurma.textContent='Erro.';} });
+    async function carregarTurmasAdmin() { const q=query(collection(db,"turmas"),orderBy("ano")), ss=await getDocs(q); listaTurmasAdmin.innerHTML=''; ss.forEach(d=>listaTurmasAdmin.innerHTML+=`<div class="disciplina-item"><span>${d.data().ano}</span><div style="display:flex;gap:8px"><button class="btn-editar-turma" data-id="${d.id}">Editar</button><button class="btn-excluir-disciplina" data-id="${d.id}">&times;</button></div></div>`);}
+
+    listaTurmasAdmin.addEventListener('click', async e => {
+      if(e.target.classList.contains('btn-excluir-disciplina')){
+        const id=e.target.dataset.id; if(confirm('Tem certeza? Excluir uma turma removerá todos os alunos e alocações.')){ try{ await deleteDoc(doc(db,'turmas',id)); carregarTurmasAdmin(); popularDropdownsAlocacao(); popularDropdownAlunosAdmin(); carregarAlocacoes(); } catch(err){ alert('Erro ao excluir.'); } }
+      } else if (e.target.classList.contains('btn-editar-turma')) {
+        const id = e.target.dataset.id; const snap = await getDoc(doc(db,'turmas',id)); abrirModalEditar({ tipo:'Turma', id, dados: snap.exists()?snap.data():{} });
+      }
+    });
+    
+    // Alunos (Admin)
+    async function popularDropdownAlunosAdmin() {
+        adminTurmaSelectAluno.innerHTML = '<option value="">Carregando turmas...</option>';
+        const qTurma = query(collection(db, "turmas"), orderBy("ano"));
+        const ssTurma = await getDocs(qTurma);
+        adminTurmaSelectAluno.innerHTML = '<option value="">Selecione uma turma...</option>';
+        ssTurma.forEach(d => adminTurmaSelectAluno.innerHTML += `<option value="${d.id}">${d.data().ano}</option>`);
+    }
+    adminTurmaSelectAluno.addEventListener('change', e => { adminAlunoContainer.style.display = e.target.value ? 'block' : 'none'; if(e.target.value) carregarAlunosAdmin(e.target.value); });
+
+    formAdminAddAluno.addEventListener('submit', async e => {
+      e.preventDefault();
+      const n=document.getElementById('admin-aluno-nome').value.trim(), m=document.getElementById('admin-aluno-matricula').value.trim(), tId=adminTurmaSelectAluno.value;
+      if(!tId){ adminFeedbackAluno.textContent='Selecione uma turma.'; return; }
+      if(!n||!m){ adminFeedbackAluno.textContent='Preencha nome e matrícula.'; return; }
+      const qM = query(collection(db,'alunos'), where('matricula','==', m));
+      const s = await getDocs(qM);
+      if(!s.empty){ adminFeedbackAluno.textContent='Já existe aluno com essa matrícula.'; return; }
+      try { await addDoc(collection(db,'alunos'),{nomeCompleto:n,matricula:m,turmaId:tId, responsavelUid: null}); adminFeedbackAluno.textContent='Aluno adicionado!'; formAdminAddAluno.reset(); carregarAlunosAdmin(tId); } catch(err){adminFeedbackAluno.textContent='Erro.';}
+    });
+
+    async function carregarAlunosAdmin(tId) { const q=query(collection(db,"alunos"),where("turmaId","==",tId)), ss=await getDocs(q); listaAlunosAdmin.innerHTML=ss.empty?'<p>Nenhum aluno.</p>':''; ss.forEach(d=>{const a=d.data(); listaAlunosAdmin.innerHTML+=`<div class="aluno-item"><span>${a.nomeCompleto} (Mat.: ${a.matricula})</span><div style="display:flex;gap:8px"><button class="btn-editar-aluno" data-id="${d.id}">Editar</button><button class="btn-remover-aluno" data-aluno-id="${d.id}">&times;</button></div></div>`;});}
+    listaAlunosAdmin.addEventListener('click', async e => { if(e.target.classList.contains('btn-remover-aluno')){ const alunoId = e.target.dataset.alunoId, turmaId = adminTurmaSelectAluno.value; await removerAluno(alunoId, turmaId, carregarAlunosAdmin); } else if (e.target.classList.contains('btn-editar-aluno')){ const id=e.target.dataset.id; const snap = await getDoc(doc(db,'alunos',id)); abrirModalEditar({ tipo:'Aluno', id, dados: snap.exists()?snap.data():{} }); } });
+
+    // Alocações (Admin)
+    async function popularDropdownsAlocacao() {
+        alocProfessorSelect.innerHTML = '<option value="">Carregando...</option>';
+        alocTurmaSelect.innerHTML = '<option value="">Carregando...</option>';
+        alocDisciplinaSelect.innerHTML = '<option value="">Carregando...</option>';
+        const qProf=query(collection(db,"usuarios"),where("role","==","professor")), qTurma=query(collection(db,"turmas"),orderBy("ano")), qDisc=query(collection(db,"disciplinas"),orderBy("ordem"));
+        const [ssProf, ssTurma, ssDisc] = await Promise.all([getDocs(qProf), getDocs(qTurma), getDocs(qDisc)]);
+        alocProfessorSelect.innerHTML = '<option value="">Selecione um professor</option>';
+        ssProf.forEach(d=>alocProfessorSelect.innerHTML+=`<option value="${d.id}">${d.data().nome}</option>`);
+        alocTurmaSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+        ssTurma.forEach(d=>alocTurmaSelect.innerHTML+=`<option value="${d.id}">${d.data().ano}</option>`);
+        alocDisciplinaSelect.innerHTML = '<option value="">Selecione uma disciplina</option>';
+        ssDisc.forEach(d=>alocDisciplinaSelect.innerHTML+=`<option value="${d.id}">${d.data().nome}</option>`);
+    }
+    formAlocarProfessor.addEventListener('submit', async e => { e.preventDefault(); alocFeedback.textContent='Alocando...'; const pId=alocProfessorSelect.value, tId=alocTurmaSelect.value, dId=alocDisciplinaSelect.value; try { await addDoc(collection(db, 'alocacoes'), { professorId: pId, turmaId: tId, disciplinaId: dId }); alocFeedback.textContent='Professor alocado!'; alocFeedback.style.color='green'; formAlocarProfessor.reset(); carregarAlocacoes();} catch(err){alocFeedback.textContent='Erro: '+err.message; alocFeedback.style.color='red';}});
+
+    async function carregarAlocacoes() { listaAlocacoes.innerHTML='Carregando...'; const q=query(collection(db,"alocacoes")), ss=await getDocs(q); if(ss.empty){listaAlocacoes.innerHTML='<p>Nenhuma alocação feita.</p>'; return;} listaAlocacoes.innerHTML=''; for(const d of ss.docs){const a=d.data(); try { const [profDoc, turmaDoc, discDoc] = await Promise.all([getDoc(doc(db,"usuarios",a.professorId)), getDoc(doc(db,"turmas",a.turmaId)), getDoc(doc(db,"disciplinas",a.disciplinaId))]); const profNome=profDoc.exists()?profDoc.data().nome:'?'; const turmaNome=turmaDoc.exists()?turmaDoc.data().ano:'?'; const discNome=discDoc.exists()?discDoc.data().nome:'?'; listaAlocacoes.innerHTML+=`<div class="item-lista alocacao-item"><span><strong>${profNome}</strong> dará <strong>${discNome}</strong> para <strong>${turmaNome}</strong></span><button class="btn-excluir-disciplina" data-id="${d.id}">&times;</button></div>`;} catch(e) { console.error("Erro ao carregar alocação:", e); }}}
+    listaAlocacoes.addEventListener('click', async e => { if(e.target.classList.contains('btn-excluir-disciplina')){const id=e.target.dataset.id; if(confirm('Remover esta alocação?')){try{await deleteDoc(doc(db,'alocacoes',id)); carregarAlocacoes();}catch(err){alert('Erro ao remover.');}}}});
+
+    // Professores (Admin)
+    formAddProfessor.addEventListener('submit', async e => {
+      e.preventDefault();
+      const n=document.getElementById('prof-nome').value.trim(), em=document.getElementById('prof-email').value.trim(), s=document.getElementById('prof-senha').value;
+      feedbackProfessor.textContent='Cadastrando...';
+      // checar email duplicado
+      const qE = query(collection(db,'usuarios'), where('email','==', em));
+      const sE = await getDocs(qE);
+      if(!sE.empty){ feedbackProfessor.textContent='E-mail já cadastrado.'; return; }
+      try {
+        const tApp=initializeApp(firebaseConfig,'Secondary'+Date.now()), tAuth=getAuth(tApp), cred=await createUserWithEmailAndPassword(tAuth,em,s);
+        await setDoc(doc(db,'usuarios',cred.user.uid),{nome:n,email:em,role:'professor'});
+        feedbackProfessor.textContent='Professor cadastrado!'; formAddProfessor.reset(); carregarProfessores(); popularDropdownsAlocacao();
+      } catch (err) { feedbackProfessor.textContent='Erro: '+err.message; }
+    });
+
+    async function carregarProfessores() { 
+      listaProfessores.innerHTML = '<p>Carregando...</p>';
+      const q=query(collection(db,"usuarios"),where("role","==","professor")), ss=await getDocs(q); 
+      if (ss.empty) { listaProfessores.innerHTML = '<p>Nenhum professor cadastrado.</p>'; return; }
+      listaProfessores.innerHTML=''; 
+      ss.forEach(d=>{
+        const p = d.data();
+        listaProfessores.innerHTML+=`<div class="item-lista professor-item"><span><strong>${p.nome}</strong> - ${p.email}</span><div style="display:flex;gap:8px"><button class="btn-editar-professor" data-id="${d.id}">Editar</button><button class="btn-excluir-professor" data-id="${d.id}" data-nome="${p.nome}">&times;</button></div></div>`;
+      });
+    }
+
+    // Responsáveis (Admin)
+    formAddResponsavel.addEventListener('submit', async (e) => { e.preventDefault(); feedbackResponsavel.textContent='Processando...'; const n=document.getElementById('resp-nome').value, em=document.getElementById('resp-email').value, s=document.getElementById('resp-senha').value, m=document.getElementById('aluno-matricula-vincular').value; let rUid=null; try { const aQ=query(collection(db,"alunos"),where("matricula","==",m)), aSS=await getDocs(aQ); if(aSS.empty)throw new Error("Matrícula não encontrada."); const aDoc=aSS.docs[0]; const rQ=query(collection(db,"usuarios"),where("email","==",em)), rSS=await getDocs(rQ); if(!rSS.empty){rUid=rSS.docs[0].id;}else{ if(!s)throw new Error("Senha é obrigatória para novo responsável."); const tApp=initializeApp(firebaseConfig,'Secondary'+Date.now()), tAuth=getAuth(tApp), cred=await createUserWithEmailAndPassword(tAuth,em,s); rUid=cred.user.uid; await setDoc(doc(db,'usuarios',rUid),{nome:n,email:em,role:'responsavel'});} await updateDoc(doc(db,'alunos',aDoc.id),{responsavelUid:rUid}); feedbackResponsavel.textContent='Aluno vinculado!'; feedbackResponsavel.style.color='green'; formAddResponsavel.reset(); await carregarResponsaveis();}catch(err){feedbackResponsavel.textContent='Erro: '+err.message; feedbackResponsavel.style.color='red';}});
+
+    async function carregarResponsaveis() {
+      listaResponsaveis.innerHTML = '<p>Carregando...</p>';
+      const q = query(collection(db, "usuarios"), where("role", "==", "responsavel"));
+      const ss = await getDocs(q);
+      if (ss.empty) { listaResponsaveis.innerHTML = '<p>Nenhum responsável cadastrado.</p>'; return; }
+      listaResponsaveis.innerHTML = '';
+      ss.forEach(d => {
+        const r = d.data();
+        listaResponsaveis.innerHTML += `<div class="item-lista responsavel-item"><span><strong>${r.nome}</strong> - ${r.email}</span><div style="display:flex;gap:8px"><button class="btn-editar-responsavel" data-id="${d.id}">Editar</button><button class="btn-excluir-responsavel" data-id="${d.id}" data-nome="${r.nome}">&times;</button></div></div>`;
+      });
+    }
+
+    listaResponsaveis.addEventListener('click', async e => {
+      if (e.target.classList.contains('btn-excluir-responsavel')) {
+        const uid = e.target.dataset.id, nome = e.target.dataset.nome;
+        if (confirm(`Tem certeza que deseja remover o responsável "${nome}"?\n\nIsso desvinculará todos os seus alunos e removerá seu perfil.`)) { await removerResponsavel(uid); }
+      } else if (e.target.classList.contains('btn-editar-responsavel')) {
+        const id = e.target.dataset.id; const snap = await getDoc(doc(db,'usuarios',id)); abrirModalEditar({ tipo:'Responsável', id, dados: snap.exists()?snap.data():{} });
+      }
+    });
+
+    async function removerResponsavel(uid) { try { const batch = writeBatch(db); const qAlunos = query(collection(db, "alunos"), where("responsavelUid", "==", uid)); const ssAlunos = await getDocs(qAlunos); ssAlunos.forEach(doc => batch.update(doc.ref, { responsavelUid: null })); const respRef = doc(db, 'usuarios', uid); batch.delete(respRef); await batch.commit(); alert('Responsável desvinculado e perfil removido.'); await carregarResponsaveis(); } catch (err) { alert('Erro ao remover: ' + err.message); } }
+
+    // --- FUNÇÕES DO PROFESSOR ---
+    async function carregarTurmasProfessor(pId) {
+        turmasSelect.innerHTML = '<option value="">Carregando turmas...</option>';
+        const q = query(collection(db, "alocacoes"), where("professorId", "==", pId));
+        const ss = await getDocs(q);
+        if (ss.empty) { turmasSelect.innerHTML = '<option value="">Nenhuma turma alocada</option>'; return; }
+        const turmasMap = new Map();
+        for (const d of ss.docs) {
+            const aloc = d.data();
+            if (!turmasMap.has(aloc.turmaId)) {
+                try { const turmaDoc = await getDoc(doc(db, "turmas", aloc.turmaId)); if(turmaDoc.exists()) turmasMap.set(aloc.turmaId, turmaDoc.data().ano); } catch (e) {}
+            }
+        }
+        turmasSelect.innerHTML = '<option value="">Selecione uma turma...</option>';
+        turmasMap.forEach((ano, id) => turmasSelect.innerHTML += `<option value="${id}">${ano}</option>`);
+    }
+
+    async function carregarAlunos(tId) { 
+        const q=query(collection(db,"alunos"),where("turmaId","==",tId)), ss=await getDocs(q); 
+        listaAlunos.innerHTML=ss.empty?'<p>Nenhum aluno.</p>':''; 
+        ss.forEach(d=>{
+            const a=d.data(); 
+            listaAlunos.innerHTML+=`
+                <div class="aluno-item">
+                    <span>${a.nomeCompleto} (Mat.: ${a.matricula})</span>
+                    <div class="aluno-botoes">
+                        <button class="btn-lancar-nota" data-aluno-id="${d.id}" data-aluno-nome="${a.nomeCompleto}">Notas/Faltas</button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    async function removerAluno(alunoId, turmaId, callbackCarregarAlunos) {
+        if (!confirm('Tem certeza que deseja remover este aluno? TODAS as suas notas e faltas também serão permanentemente excluídas.')) return;
+        try {
+            const batch = writeBatch(db);
+            const alunoRef = doc(db, 'alunos', alunoId);
+            batch.delete(alunoRef);
+            const notasQuery = query(collection(db, "notas"), where("alunoId", "==", alunoId));
+            const notasSnapshot = await getDocs(notasQuery);
+            notasSnapshot.forEach(doc => batch.delete(doc.ref));
+            const faltasQuery = query(collection(db, "faltas"), where("alunoId", "==", alunoId));
+            const faltasSnapshot = await getDocs(faltasQuery);
+            faltasSnapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            await callbackCarregarAlunos(turmaId);
+        } catch (err) { console.error("Erro ao remover aluno: ", err); alert("Não foi possível remover o aluno."); }
+    }
+
+    turmasSelect.addEventListener('change', e => { alunosManagementContainer.style.display=e.target.value?'block':'none'; if(e.target.value)carregarAlunos(e.target.value); });
+    
+    // --- FUNÇÕES DO MODAL (notas) ---
+    function calcularEAtualizarLinha(row) { const inputs=row.querySelectorAll('.nota-input'); let soma=0, count=0; inputs.forEach(input=>{const valor=parseFloat(input.value); if(!isNaN(valor)){soma+=valor; count++;}}); const media=count>0?(soma/count).toFixed(1):'-'; row.querySelector('.soma-cell').textContent=count>0?soma.toFixed(1):'-'; row.querySelector('.media-cell').textContent=media; }
+    
+    async function abrirModalNotas(aId, aNome) {
+        alunoIdAtual = aId;
+        const turmaId = turmasSelect.value;
+        const professorId = auth.currentUser.uid;
+        modalAlunoNome.textContent = `Lançar para: ${aNome} (${anoLetivoAtual})`;
+        corpoTabelaBoletim.innerHTML = '<tr><td colspan="8">Carregando...</td></tr>';
+        feedbackSalvarNotas.textContent = '';
+        modalNotas.style.display = 'flex';
+        try {
+            const alocQuery = query(collection(db, "alocacoes"), where("professorId", "==", professorId), where("turmaId", "==", turmaId));
+            const alocSnapshot = await getDocs(alocQuery);
+            const disciplinasDoProfessorIds = alocSnapshot.docs.map(d => d.data().disciplinaId);
+            
+            if (disciplinasDoProfessorIds.length === 0) {
+                corpoTabelaBoletim.innerHTML = '<tr><td colspan="8">Você não está alocado a nenhuma disciplina para esta turma.</td></tr>';
+                return;
+            }
+
+            const disciplinasPromises = disciplinasDoProfessorIds.map(id => getDoc(doc(db, "disciplinas", id)));
+            const disciplinasDocs = await Promise.all(disciplinasPromises);
+            
+            const nQuery = query(collection(db, "notas"), where("alunoId", "==", aId), where("anoLetivo", "==", anoLetivoAtual));
+            const fQuery = query(collection(db, "faltas"), where("alunoId", "==", aId), where("anoLetivo", "==", anoLetivoAtual));
+            const [nS, fS] = await Promise.all([getDocs(nQuery), getDocs(fQuery)]);
+            
+            const nPD = {}, fPD = {};
+            nS.forEach(d => { const n = d.data(); if (!nPD[n.disciplinaId]) nPD[n.disciplinaId] = {}; nPD[n.disciplinaId][n.bimestre] = n.valor; });
+            fS.forEach(d => fPD[d.data().disciplinaId] = d.data().total);
+            
+            let tabelaHtml = '';
+            const disciplinasOrdenadas = disciplinasDocs.filter(d => d.exists()).map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.ordem - b.ordem);
+
+            disciplinasOrdenadas.forEach(disc => {
+                const discId = disc.id;
+                tabelaHtml += `
+                    <tr data-disciplina-id="${discId}">
+                        <td>${disc.nome}</td>
+                        <td><input type="number" class="nota-input" step="0.1" min="0" max="10" data-bimestre="1" value="${nPD[discId]?.[1] || ''}"></td>
+                        <td><input type="number" class="nota-input" step="0.1" min="0" max="10" data-bimestre="2" value="${nPD[discId]?.[2] || ''}"></td>
+                        <td><input type="number" class="nota-input" step="0.1" min="0" max="10" data-bimestre="3" value="${nPD[discId]?.[3] || ''}"></td>
+                        <td><input type="number" class="nota-input" step="0.1" min="0" max="10" data-bimestre="4" value="${nPD[discId]?.[4] || ''}"></td>
+                        <td><input type="number" class="falta-input" min="0" value="${fPD[discId] || ''}"></td>
+                        <td class="soma-cell">-</td>
+                        <td class="media-cell">-</td>
+                    </tr>`;
+            });
+            
+            corpoTabelaBoletim.innerHTML = tabelaHtml || '<tr><td colspan="8">Nenhuma disciplina encontrada.</td></tr>';
+            corpoTabelaBoletim.querySelectorAll('tr').forEach(calcularEAtualizarLinha);
+        } catch (error) { console.error(error); }
+    }
+
+    salvarNotasBtn.addEventListener('click', async()=>{ if(!alunoIdAtual)return; feedbackSalvarNotas.textContent='Salvando...'; try { const batch=writeBatch(db); corpoTabelaBoletim.querySelectorAll('tr').forEach(r=>{const dId=r.dataset.disciplinaId; r.querySelectorAll('input.nota-input').forEach(i=>{const b=i.dataset.bimestre, v=parseFloat(i.value); const nId=`${alunoIdAtual}_${dId}_${b}_${anoLetivoAtual}`, nRef=doc(db,'notas',nId); if(!isNaN(v)){
+  batch.set(nRef,{alunoId:alunoIdAtual,disciplinaId:dId,bimestre:parseInt(b),valor:v,descricao:`Nota ${b}º Bimestre`, anoLetivo: anoLetivoAtual});
+}else{batch.delete(nRef);}}); const fI=r.querySelector('input.falta-input'), fV=parseInt(fI.value); const fId=`${alunoIdAtual}_${dId}_${anoLetivoAtual}`, fRef=doc(db,'faltas',fId); 
+if(!isNaN(fV)&&fV>=0){
+  batch.set(fRef,{alunoId:alunoIdAtual,disciplinaId:dId,total:fV, anoLetivo: anoLetivoAtual});
+}else{batch.delete(fRef);}}); await batch.commit(); feedbackSalvarNotas.textContent='Dados salvos!'; feedbackSalvarNotas.style.color='green'; } catch(err){feedbackSalvarNotas.textContent='Erro: '+err.message; feedbackSalvarNotas.style.color='red';}});
+
+    modalCloseButton.addEventListener('click', ()=>modalNotas.style.display='none');
+    listaAlunos.addEventListener('click', e => { if(e.target.classList.contains('btn-lancar-nota')){abrirModalNotas(e.target.dataset.alunoId, e.target.dataset.alunoNome);} });
+    corpoTabelaBoletim.addEventListener('input', e=>{if(e.target.classList.contains('nota-input')){const row=e.target.closest('tr'); calcularEAtualizarLinha(row);}});
+
+    // --- Modal editar genérico ---
+    function abrirModalEditar({ tipo, id, dados }) {
+      modalEditarFeedback.textContent = '';
+      modalEditarCampos.innerHTML = '';
+      modalEditar.style.display = 'flex';
+      modalEditarTitulo.textContent = `Editar ${tipo}`;
+      modalEditarForm.dataset.tipo = tipo;
+      modalEditarForm.dataset.id = id || '';
+
+      if (tipo === 'Notícia') {
+        modalEditarCampos.innerHTML = `
+          <label>Título</label><input type="text" name="titulo" value="${(dados?.titulo||'')}" required>
+          <label>Resumo</label><textarea name="conteudo" rows="3">${dados?.conteudo||''}</textarea>
+          <label>Detalhes</label><textarea name="detalhes" rows="6">${dados?.detalhes||''}</textarea>
+          <label>Link Externo</label><input type="url" name="link" value="${dados?.link||''}">
+        `;
+      } else if (tipo === 'Disciplina') {
+        modalEditarCampos.innerHTML = `<label>Nome da disciplina</label><input type="text" name="nome" value="${dados?.nome||''}" required>`;
+      } else if (tipo === 'Turma') {
+        modalEditarCampos.innerHTML = `<label>Nome da turma</label><input type="text" name="ano" value="${dados?.ano||''}" required>`;
+      } else if (tipo === 'Aluno') {
+        modalEditarCampos.innerHTML = `
+          <label>Nome completo</label><input type="text" name="nomeCompleto" value="${dados?.nomeCompleto||''}" required>
+          <label>Matrícula</label><input type="text" name="matricula" value="${dados?.matricula||''}" required>
+        `;
+      } else if (tipo === 'Professor') {
+        modalEditarCampos.innerHTML = `
+          <label>Nome</label><input type="text" name="nome" value="${dados?.nome||''}" required>
+          <label>E-mail</label><input type="email" name="email" value="${dados?.email||''}" required>
+          <label>Nova Senha (opcional)</label>
+          <input type="password" name="senha" placeholder="Deixe em branco para não alterar">
+          <p style="font-size:0.85rem;color:#666;margin-top:-8px;margin-bottom:20px">A senha só será alterada se você preencher este campo.</p>
+        `;
+      } else if (tipo === 'Responsável') {
+        modalEditarCampos.innerHTML = `
+          <label>Nome</label><input type="text" name="nome" value="${dados?.nome||''}" required>
+          <label>E-mail</label><input type="email" name="email" value="${dados?.email||''}" required>
+          <label>Nova Senha (opcional)</label>
+          <input type="password" name="senha" placeholder="Deixe em branco para não alterar">
+          <p style="font-size:0.85rem;color:#666;margin-top:-8px;margin-bottom:20px">A senha só será alterada se você preencher este campo.</p>
+        `;
+      } else if (tipo === 'Meu Perfil') {
+        modalEditarCampos.innerHTML = `<label>Nome</label><input type="text" name="nome" value="${dados?.nome||''}" required><p style="font-size:0.9rem;color:#666">Para alterar e‑mail ou senha use "Esqueceu a senha?"</p>`;
+      }
+    }
+    modalEditarClose.addEventListener('click', ()=> modalEditar.style.display = 'none');
+    modalEditar.addEventListener('click', e => { if (e.target === modalEditar) modalEditar.style.display = 'none'; });
+
+    modalEditarForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const tipo = e.target.dataset.tipo;
+      const id = e.target.dataset.id;
+      modalEditarFeedback.textContent = 'Salvando...';
+      try {
+        const formData = new FormData(e.target);
+        const obj = Object.fromEntries(formData.entries());
+
+        if (tipo === 'Aluno') {
+          if (!obj.nomeCompleto || !obj.matricula) throw new Error('Nome e matrícula são obrigatórios.');
+          const qM = query(collection(db,'alunos'), where('matricula','==', obj.matricula));
+          const ssM = await getDocs(qM);
+          if (!ssM.empty) {
+            const duplicate = ssM.docs.find(d => d.id !== id);
+            if (duplicate) throw new Error('Já existe aluno com essa matrícula.');
+          }
+          await updateDoc(doc(db,'alunos', id), { nomeCompleto: obj.nomeCompleto, matricula: obj.matricula });
+        } else if (tipo === 'Notícia') {
+          if (!obj.titulo) throw new Error('Título é obrigatório.');
+          await updateDoc(doc(db,'noticias', id), { titulo: obj.titulo, conteudo: obj.conteudo || null, detalhes: obj.detalhes || null, link: obj.link || null });
+          carregarNoticiasAdmin();
+        } else if (tipo === 'Disciplina') {
+          if (!obj.nome) throw new Error('Nome é obrigatório.');
+          await updateDoc(doc(db,'disciplinas', id), { nome: obj.nome });
+          carregarDisciplinas();
+          popularDropdownsAlocacao();
+        } else if (tipo === 'Turma') {
+          if (!obj.ano) throw new Error('Nome da turma é obrigatório.');
+          await updateDoc(doc(db,'turmas', id), { ano: obj.ano });
+          carregarTurmasAdmin();
+          popularDropdownsAlocacao();
+          popularDropdownAlunosAdmin();
+        } else if (tipo === 'Professor') {
+          if (!obj.nome || !obj.email) throw new Error('Nome e e‑mail são obrigatórios.');
+          const qE = query(collection(db,'usuarios'), where('email','==', obj.email));
+          const ssE = await getDocs(qE);
+          if (!ssE.empty) {
+            const dup = ssE.docs.find(d => d.id !== id);
+            if (dup) throw new Error('E-mail já é usado por outra conta.');
+          }
+          await updateDoc(doc(db,'usuarios', id), { nome: obj.nome, email: obj.email });
+          if (obj.senha?.trim()) {
+            await updateDoc(doc(db, 'usuarios', id), { senhaTemporaria: obj.senha });
+          }
+          await carregarProfessores();
+          await popularDropdownsAlocacao();
+        } else if (tipo === 'Responsável') {
+          if (!obj.nome || !obj.email) throw new Error('Nome e e‑mail são obrigatórios.');
+          const qE = query(collection(db,'usuarios'), where('email','==', obj.email));
+          const ssE = await getDocs(qE);
+          if (!ssE.empty) {
+            const dup = ssE.docs.find(d => d.id !== id);
+            if (dup) throw new Error('E-mail já é usado por outra conta.');
+          }
+          await updateDoc(doc(db,'usuarios', id), { nome: obj.nome, email: obj.email });
+          if (obj.senha?.trim()) {
+            await updateDoc(doc(db, 'usuarios', id), { senhaTemporaria: obj.senha });
+          }
+          carregarResponsaveis();
+        } else if (tipo === 'Meu Perfil') {
+          const uid = auth.currentUser.uid;
+          if (!obj.nome) throw new Error('Nome obrigatório.');
+          await updateDoc(doc(db,'usuarios', uid), { nome: obj.nome });
+          alert('Perfil atualizado.');
+        }
+
+        modalEditarFeedback.style.color='green';
+        modalEditarFeedback.textContent = 'Salvo com sucesso!';
+        setTimeout(()=>{ modalEditar.style.display='none'; modalEditarFeedback.textContent=''; }, 900);
+      } catch (err) {
+        console.error(err);
+        modalEditarFeedback.style.color='red';
+        modalEditarFeedback.textContent = 'Erro: ' + (err.message||err);
+      }
+    });
+
+    if (btnMeuPerfil) {
+      btnMeuPerfil.addEventListener('click', async () => {
+        const uid = auth.currentUser.uid;
+        const snap = await getDoc(doc(db,'usuarios', uid));
+        abrirModalEditar({ tipo: 'Meu Perfil', id: uid, dados: snap.exists()?snap.data():{} });
+      });
+    }
+
+    listaProfessores.addEventListener('click', async e => {
+      if (e.target.classList.contains('btn-excluir-professor')) {
+        const uid = e.target.dataset.id, nome = e.target.dataset.nome;
+        if (confirm(`Tem certeza que deseja remover o professor "${nome}"?\n\nIsso excluirá todas as alocações desse professor.`)) { await removerProfessor(uid); }
+      } else if (e.target.classList.contains('btn-editar-professor')) {
+        const id = e.target.dataset.id; const snap = await getDoc(doc(db,'usuarios',id)); abrirModalEditar({ tipo:'Professor', id, dados: snap.exists()?snap.data():{} });
+      }
+    });
+
+    async function removerProfessor(uid) { 
+      try { 
+        const batch = writeBatch(db); 
+        const qAloc = query(collection(db, "alocacoes"), where("professorId", "==", uid)); 
+        const ssAloc = await getDocs(qAloc); 
+        ssAloc.forEach(doc => batch.delete(doc.ref)); 
+        const profRef = doc(db, 'usuarios', uid); 
+        batch.delete(profRef); 
+        await batch.commit(); 
+        alert('Professor removido e alocações excluídas.'); 
+        await carregarProfessores(); 
+        await popularDropdownsAlocacao();
+      } catch (err) { 
+        alert('Erro ao remover: ' + err.message); 
+      } 
+    }
+
+    // --- CONTROLE DE ANO LETIVO ---
+    const btnFinalizarAno = document.getElementById('btn-finalizar-ano');
+    const btnVerHistorico = document.getElementById('btn-ver-historico');
+
+    if (btnFinalizarAno) {
+      btnFinalizarAno.addEventListener('click', async () => {
+        if (!confirm(`⚠️ Finalizar Ano ${anoLetivoAtual}?\n\nIsso vai mover dados para histórico e iniciar ${anoLetivoAtual + 1}.`)) return;
+        const senha = prompt('Digite sua senha de admin:');
+        if (!senha) return;
+        try {
+          await signInWithEmailAndPassword(auth, auth.currentUser.email, senha);
+          btnFinalizarAno.disabled = true;
+          btnFinalizarAno.textContent = 'Finalizando...';
+          await finalizarAnoLetivo();
+          alert(`✅ Ano ${anoLetivoAtual} finalizado!`);
+          location.reload();
+        } catch (err) {
+          alert('Erro: ' + err.message);
+          btnFinalizarAno.disabled = false;
+          btnFinalizarAno.textContent = 'Finalizar Ano Letivo';
+        }
+      });
+    }
+
+    async function finalizarAnoLetivo() {
+      const anoAtual = anoLetivoAtual;
+      const proximoAno = anoAtual + 1;
+      const anoAnterior = anoAtual - 1;
+      
+      const historicoAntigoQuery = query(collection(db, "historico"), where("anoLetivo", "==", anoAnterior));
+      const historicoAntigoSnap = await getDocs(historicoAntigoQuery);
+      const batch1 = writeBatch(db);
+      historicoAntigoSnap.forEach(d => batch1.delete(d.ref));
+      if (historicoAntigoSnap.size > 0) await batch1.commit();
+      
+      const notasQuery = query(collection(db, "notas"), where("anoLetivo", "==", anoAtual));
+      const faltasQuery = query(collection(db, "faltas"), where("anoLetivo", "==", anoAtual));
+      const [notasSnap, faltasSnap] = await Promise.all([getDocs(notasQuery), getDocs(faltasQuery)]);
+      
+      const batch2 = writeBatch(db);
+      notasSnap.forEach(d => batch2.set(doc(db, 'historico', `nota_${d.id}`), { ...d.data(), tipo: 'nota' }));
+      faltasSnap.forEach(d => batch2.set(doc(db, 'historico', `falta_${d.id}`), { ...d.data(), tipo: 'falta' }));
+      if (notasSnap.size > 0 || faltasSnap.size > 0) await batch2.commit();
+      
+      const batch3 = writeBatch(db);
+      notasSnap.forEach(d => batch3.delete(d.ref));
+      faltasSnap.forEach(d => batch3.delete(d.ref));
+      if (notasSnap.size > 0 || faltasSnap.size > 0) await batch3.commit();
+      
+      await updateDoc(doc(db, 'config', 'sistema'), { anoLetivoAtual: proximoAno });
+      anoLetivoAtual = proximoAno;
+    }
+
+    if (btnVerHistorico) {
+      btnVerHistorico.addEventListener('click', () => {
+        alert(`📚 Histórico de ${anoLetivoAtual - 1}\n\n(Em desenvolvimento)`);
+      });
+    }
+  </script>
+</body>
+</html>
