@@ -163,7 +163,6 @@
         }
     }
 
-    // Lógica de autenticação
     onAuthStateChanged(auth, async (user) => { 
         if (user) { 
             try { 
@@ -175,7 +174,6 @@
                     portalResponsavel.style.display = 'block'; 
                     navSair.style.display = 'block'; 
                     
-                    // CORREÇÃO: Verificação de segurança (caso o HTML mude no futuro)
                     if(btnMeuPerfilResp) btnMeuPerfilResp.style.display = 'inline-block'; 
                     
                     await buscarDadosDosAlunos(user.uid); 
@@ -193,7 +191,6 @@
             portalResponsavel.style.display = 'none'; 
             navSair.style.display = 'none'; 
             
-            // CORREÇÃO: Verificação de segurança
             if(btnMeuPerfilResp) btnMeuPerfilResp.style.display = 'none'; 
         } 
     });

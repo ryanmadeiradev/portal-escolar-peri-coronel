@@ -256,17 +256,14 @@
   </script>
 
   <script type="module">
-    // --- IMPORTAÇÕES ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, updateDoc, writeBatch, orderBy, deleteDoc, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
     import { firebaseConfig } from './firebase-config.js';
-    // --- CONFIGURAÇÃO ---
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- SELETORES GLOBAIS ---
     const secaoLogin=document.getElementById('secao-login'), portalConteudo=document.getElementById('portal-conteudo'), loginForm=document.getElementById('login-form'), loginErrorMessage=document.getElementById('login-error-message'), navSair=document.getElementById('nav-sair');
     const adminDashboard=document.getElementById('admin-dashboard'), professorDashboard=document.getElementById('professor-dashboard');
     const formAddNoticia = document.getElementById('form-add-noticia'), feedbackNoticia = document.getElementById('add-noticia-feedback'), listaNoticias = document.getElementById('lista-noticias');
@@ -282,66 +279,77 @@
     const modalEditar = document.getElementById('modal-editar'), modalEditarClose = document.getElementById('modal-editar-close'), modalEditarTitulo = document.getElementById('modal-editar-titulo'), modalEditarCampos = document.getElementById('modal-editar-campos'), modalEditarForm = document.getElementById('modal-editar-form'), modalEditarFeedback = document.getElementById('modal-editar-feedback'), btnMeuPerfil = document.getElementById('btn-meu-perfil');
     let alunoIdAtual = null;
 
-    // === SISTEMA DE ANO LETIVO ===
     let anoLetivoAtual = 2025;
+      async function carregarAnoLetivo() {
+          const docRef = doc(db, 'config', 'sistema');
+          const docSnap = await getDoc(docRef);
 
-    async function carregarAnoLetivo() {
-      try {
-        const configDoc = await getDoc(doc(db, 'config', 'sistema'));
-        if (configDoc.exists()) {
-          anoLetivoAtual = configDoc.data().anoLetivoAtual || 2025;
-        } else {
-          await setDoc(doc(db, 'config', 'sistema'), { anoLetivoAtual: 2025 });
-          anoLetivoAtual = 2025;
-        }
-        const anoDisplay = document.getElementById('ano-letivo-display');
-        if (anoDisplay) anoDisplay.textContent = anoLetivoAtual;
-      } catch (err) {
-        console.error('Erro ao carregar ano letivo:', err);
-        anoLetivoAtual = 2025;
+          if (docSnap.exists()) {
+              const ano = docSnap.data().anoLetivoAtual;
+              console.log("Ano Letivo:", ano);
+          } else {
+              throw new Error("Documento 'config/sistema' não existe no banco.");
+          }
       }
-    }
 
-
-    // --- SEÇÃO DE LOGIN ---
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
+    if (user) {
+        try {
+            const docRef = doc(db, 'usuarios', user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) { 
+                throw new Error("Perfil não encontrado no Firestore."); 
+            }
+
+            const role = docSnap.data().role;
+
             try {
-            await carregarAnoLetivo();
-                const docRef = doc(db, 'usuarios', user.uid);
-                const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) { throw new Error("Perfil não encontrado."); }
-                const role = docSnap.data().role;
-                secaoLogin.style.display='none'; adminDashboard.style.display='none'; professorDashboard.style.display='none'; portalConteudo.style.display='block'; navSair.style.display='block';
-                
-                if (role === 'admin') {
-                    adminDashboard.style.display = 'block';
-                    await carregarNoticiasAdmin();
-                    await carregarDisciplinas();
-                    await carregarTurmasAdmin();
-                    await carregarProfessores();
-                    await carregarResponsaveis();
-                    await popularDropdownsAlocacao();
-                    await carregarAlocacoes();
-                    await popularDropdownAlunosAdmin();
-                } else if (role === 'professor') {
-                    professorDashboard.style.display = 'block';
-                    await carregarTurmasProfessor(user.uid);
-                } else {
-                    throw new Error("Permissão inválida.");
-                }
-            } catch (error) { console.error("Erro de autenticação:", error.message); await signOut(auth); }
-        } else {
-            secaoLogin.style.display = 'flex';
-            portalConteudo.style.display = 'none';
-            navSair.style.display = 'none';
+                await carregarAnoLetivo();
+            } catch (e) {
+                console.error("Ano letivo não carregou, mas mantendo login:", e.message);
+            }
+
+            secaoLogin.style.display = 'none'; 
+            portalConteudo.style.display = 'block'; 
+            navSair.style.display = 'block';
+            adminDashboard.style.display = 'none'; 
+            professorDashboard.style.display = 'none';
+
+            if (role === 'admin') {
+                adminDashboard.style.display = 'block';
+                await Promise.all([
+                    carregarNoticiasAdmin(),
+                    carregarDisciplinas(),
+                    carregarTurmasAdmin(),
+                    carregarProfessores(),
+                    carregarResponsaveis(),
+                    popularDropdownsAlocacao(),
+                    carregarAlocacoes(),
+                    popularDropdownAlunosAdmin()
+                ]);
+            } else if (role === 'professor') {
+                professorDashboard.style.display = 'block';
+                await carregarTurmasProfessor(user.uid);
+            } else {
+                throw new Error("Permissão inválida.");
+            }
+
+        } catch (error) { 
+            console.error("Erro de autenticação:", error.message); 
+            alert("Erro ao acessar perfil: " + error.message);
+            await signOut(auth); 
         }
-    });
-    
+    } else {
+        secaoLogin.style.display = 'flex';
+        portalConteudo.style.display = 'none';
+        navSair.style.display = 'none';
+    }
+});
+
     loginForm.addEventListener('submit', (e) => { e.preventDefault(); loginErrorMessage.style.display = 'none'; signInWithEmailAndPassword(auth,document.getElementById('usuario').value,document.getElementById('senha').value).catch(() => { loginErrorMessage.textContent="E-mail ou senha incorretos."; loginErrorMessage.style.display='block'; }); });
     navSair.addEventListener('click', (e) => { e.preventDefault(); signOut(auth); });
 
-    // --- Recuperação de senha ---
     if (forgotPasswordLink) {
       forgotPasswordLink.addEventListener('click', (ev) => {
         ev.preventDefault();
@@ -356,9 +364,6 @@
       });
     }
 
-    // --- FUNÇÕES DO ADMIN ---
-    
-    // Notícias (adicionada opção editar)
     formAddNoticia.addEventListener('submit', async e => { e.preventDefault(); feedbackNoticia.textContent = 'Publicando...'; const titulo = document.getElementById('noticia-titulo').value; const conteudo = document.getElementById('noticia-conteudo').value; const detalhes = document.getElementById('noticia-detalhes').value; const link = document.getElementById('noticia-link').value; try { await addDoc(collection(db, 'noticias'), { titulo, conteudo, detalhes: detalhes || null, link: link || null, dataPublicacao: serverTimestamp() }); feedbackNoticia.textContent = 'Notícia publicada!'; formAddNoticia.reset(); await carregarNoticiasAdmin(); } catch (err) { feedbackNoticia.textContent = 'Erro: ' + err.message; } });
 
     async function carregarNoticiasAdmin() {
@@ -393,7 +398,6 @@
       }
     });
 
-    // Disciplinas
     formAddDisciplina.addEventListener('submit', async e => { e.preventDefault(); feedbackDisciplina.textContent='Adicionando...'; const nome=document.getElementById('disciplina-nome').value; try { const q=query(collection(db,"disciplinas"),orderBy("ordem","desc"),limit(1)); const lastDocSnap=await getDocs(q); const proximaOrdem=lastDocSnap.empty?1:lastDocSnap.docs[0].data().ordem+1; await addDoc(collection(db,'disciplinas'),{nome:nome,ordem:proximaOrdem}); feedbackDisciplina.textContent='Disciplina adicionada!'; formAddDisciplina.reset(); await carregarDisciplinas(); await popularDropdownsAlocacao();}catch(err){feedbackDisciplina.textContent='Erro: '+err.message;}});
 
     async function carregarDisciplinas() { const q=query(collection(db,"disciplinas"),orderBy("ordem")), ss=await getDocs(q); listaDisciplinas.innerHTML=''; ss.forEach(d=>listaDisciplinas.innerHTML+=`<div class="disciplina-item"><span>${d.data().nome}</span><div style="display:flex;gap:8px"><button class="btn-editar-disciplina" data-id="${d.id}">Editar</button><button class="btn-excluir-disciplina" data-id="${d.id}">&times;</button></div></div>`);}
@@ -406,7 +410,6 @@
       }
     });
 
-    // Turmas (Admin)
     formAddTurma.addEventListener('submit', async e => { e.preventDefault(); const n=document.getElementById('turma-nome').value; try { await addDoc(collection(db,'turmas'),{ano:n}); feedbackTurma.textContent='Turma criada!'; formAddTurma.reset(); carregarTurmasAdmin(); popularDropdownsAlocacao(); popularDropdownAlunosAdmin();} catch(err){feedbackTurma.textContent='Erro.';} });
     async function carregarTurmasAdmin() { const q=query(collection(db,"turmas"),orderBy("ano")), ss=await getDocs(q); listaTurmasAdmin.innerHTML=''; ss.forEach(d=>listaTurmasAdmin.innerHTML+=`<div class="disciplina-item"><span>${d.data().ano}</span><div style="display:flex;gap:8px"><button class="btn-editar-turma" data-id="${d.id}">Editar</button><button class="btn-excluir-disciplina" data-id="${d.id}">&times;</button></div></div>`);}
 
@@ -418,7 +421,6 @@
       }
     });
     
-    // Alunos (Admin)
     async function popularDropdownAlunosAdmin() {
         adminTurmaSelectAluno.innerHTML = '<option value="">Carregando turmas...</option>';
         const qTurma = query(collection(db, "turmas"), orderBy("ano"));
@@ -442,7 +444,6 @@
     async function carregarAlunosAdmin(tId) { const q=query(collection(db,"alunos"),where("turmaId","==",tId)), ss=await getDocs(q); listaAlunosAdmin.innerHTML=ss.empty?'<p>Nenhum aluno.</p>':''; ss.forEach(d=>{const a=d.data(); listaAlunosAdmin.innerHTML+=`<div class="aluno-item"><span>${a.nomeCompleto} (Mat.: ${a.matricula})</span><div style="display:flex;gap:8px"><button class="btn-editar-aluno" data-id="${d.id}">Editar</button><button class="btn-remover-aluno" data-aluno-id="${d.id}">&times;</button></div></div>`;});}
     listaAlunosAdmin.addEventListener('click', async e => { if(e.target.classList.contains('btn-remover-aluno')){ const alunoId = e.target.dataset.alunoId, turmaId = adminTurmaSelectAluno.value; await removerAluno(alunoId, turmaId, carregarAlunosAdmin); } else if (e.target.classList.contains('btn-editar-aluno')){ const id=e.target.dataset.id; const snap = await getDoc(doc(db,'alunos',id)); abrirModalEditar({ tipo:'Aluno', id, dados: snap.exists()?snap.data():{} }); } });
 
-    // Alocações (Admin)
     async function popularDropdownsAlocacao() {
         alocProfessorSelect.innerHTML = '<option value="">Carregando...</option>';
         alocTurmaSelect.innerHTML = '<option value="">Carregando...</option>';
@@ -461,12 +462,10 @@
     async function carregarAlocacoes() { listaAlocacoes.innerHTML='Carregando...'; const q=query(collection(db,"alocacoes")), ss=await getDocs(q); if(ss.empty){listaAlocacoes.innerHTML='<p>Nenhuma alocação feita.</p>'; return;} listaAlocacoes.innerHTML=''; for(const d of ss.docs){const a=d.data(); try { const [profDoc, turmaDoc, discDoc] = await Promise.all([getDoc(doc(db,"usuarios",a.professorId)), getDoc(doc(db,"turmas",a.turmaId)), getDoc(doc(db,"disciplinas",a.disciplinaId))]); const profNome=profDoc.exists()?profDoc.data().nome:'?'; const turmaNome=turmaDoc.exists()?turmaDoc.data().ano:'?'; const discNome=discDoc.exists()?discDoc.data().nome:'?'; listaAlocacoes.innerHTML+=`<div class="item-lista alocacao-item"><span><strong>${profNome}</strong> dará <strong>${discNome}</strong> para <strong>${turmaNome}</strong></span><button class="btn-excluir-disciplina" data-id="${d.id}">&times;</button></div>`;} catch(e) { console.error("Erro ao carregar alocação:", e); }}}
     listaAlocacoes.addEventListener('click', async e => { if(e.target.classList.contains('btn-excluir-disciplina')){const id=e.target.dataset.id; if(confirm('Remover esta alocação?')){try{await deleteDoc(doc(db,'alocacoes',id)); carregarAlocacoes();}catch(err){alert('Erro ao remover.');}}}});
 
-    // Professores (Admin)
     formAddProfessor.addEventListener('submit', async e => {
       e.preventDefault();
       const n=document.getElementById('prof-nome').value.trim(), em=document.getElementById('prof-email').value.trim(), s=document.getElementById('prof-senha').value;
       feedbackProfessor.textContent='Cadastrando...';
-      // checar email duplicado
       const qE = query(collection(db,'usuarios'), where('email','==', em));
       const sE = await getDocs(qE);
       if(!sE.empty){ feedbackProfessor.textContent='E-mail já cadastrado.'; return; }
@@ -488,7 +487,6 @@
       });
     }
 
-    // Responsáveis (Admin)
     formAddResponsavel.addEventListener('submit', async (e) => { e.preventDefault(); feedbackResponsavel.textContent='Processando...'; const n=document.getElementById('resp-nome').value, em=document.getElementById('resp-email').value, s=document.getElementById('resp-senha').value, m=document.getElementById('aluno-matricula-vincular').value; let rUid=null; try { const aQ=query(collection(db,"alunos"),where("matricula","==",m)), aSS=await getDocs(aQ); if(aSS.empty)throw new Error("Matrícula não encontrada."); const aDoc=aSS.docs[0]; const rQ=query(collection(db,"usuarios"),where("email","==",em)), rSS=await getDocs(rQ); if(!rSS.empty){rUid=rSS.docs[0].id;}else{ if(!s)throw new Error("Senha é obrigatória para novo responsável."); const tApp=initializeApp(firebaseConfig,'Secondary'+Date.now()), tAuth=getAuth(tApp), cred=await createUserWithEmailAndPassword(tAuth,em,s); rUid=cred.user.uid; await setDoc(doc(db,'usuarios',rUid),{nome:n,email:em,role:'responsavel'});} await updateDoc(doc(db,'alunos',aDoc.id),{responsavelUid:rUid}); feedbackResponsavel.textContent='Aluno vinculado!'; feedbackResponsavel.style.color='green'; formAddResponsavel.reset(); await carregarResponsaveis();}catch(err){feedbackResponsavel.textContent='Erro: '+err.message; feedbackResponsavel.style.color='red';}});
 
     async function carregarResponsaveis() {
@@ -513,8 +511,6 @@
     });
 
     async function removerResponsavel(uid) { try { const batch = writeBatch(db); const qAlunos = query(collection(db, "alunos"), where("responsavelUid", "==", uid)); const ssAlunos = await getDocs(qAlunos); ssAlunos.forEach(doc => batch.update(doc.ref, { responsavelUid: null })); const respRef = doc(db, 'usuarios', uid); batch.delete(respRef); await batch.commit(); alert('Responsável desvinculado e perfil removido.'); await carregarResponsaveis(); } catch (err) { alert('Erro ao remover: ' + err.message); } }
-
-    // --- FUNÇÕES DO PROFESSOR ---
     async function carregarTurmasProfessor(pId) {
         turmasSelect.innerHTML = '<option value="">Carregando turmas...</option>';
         const q = query(collection(db, "alocacoes"), where("professorId", "==", pId));
@@ -565,7 +561,6 @@
 
     turmasSelect.addEventListener('change', e => { alunosManagementContainer.style.display=e.target.value?'block':'none'; if(e.target.value)carregarAlunos(e.target.value); });
     
-    // --- FUNÇÕES DO MODAL (notas) ---
     function calcularEAtualizarLinha(row) { const inputs=row.querySelectorAll('.nota-input'); let soma=0, count=0; inputs.forEach(input=>{const valor=parseFloat(input.value); if(!isNaN(valor)){soma+=valor; count++;}}); const media=count>0?(soma/count).toFixed(1):'-'; row.querySelector('.soma-cell').textContent=count>0?soma.toFixed(1):'-'; row.querySelector('.media-cell').textContent=media; }
     
     async function abrirModalNotas(aId, aNome) {
@@ -631,7 +626,6 @@ if(!isNaN(fV)&&fV>=0){
     listaAlunos.addEventListener('click', e => { if(e.target.classList.contains('btn-lancar-nota')){abrirModalNotas(e.target.dataset.alunoId, e.target.dataset.alunoNome);} });
     corpoTabelaBoletim.addEventListener('input', e=>{if(e.target.classList.contains('nota-input')){const row=e.target.closest('tr'); calcularEAtualizarLinha(row);}});
 
-    // --- Modal editar genérico ---
     function abrirModalEditar({ tipo, id, dados }) {
       modalEditarFeedback.textContent = '';
       modalEditarCampos.innerHTML = '';
@@ -790,7 +784,6 @@ if(!isNaN(fV)&&fV>=0){
       } 
     }
 
-    // --- CONTROLE DE ANO LETIVO ---
     const btnFinalizarAno = document.getElementById('btn-finalizar-ano');
     const btnVerHistorico = document.getElementById('btn-ver-historico');
 

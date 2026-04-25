@@ -1,4 +1,3 @@
-/* Corrige cabeçalho inválido que quebrava o CSS */
 :root {
   --color-primary: #5DA7E3;
   --color-secondary: #C92F2F;
@@ -14,7 +13,6 @@
   --header-height: 70px;
 }
 
-/* RESET E BASE    */
 * {
   margin: 0;
   padding: 0;
@@ -37,7 +35,6 @@ body {
   margin: 0 auto;
 }
 
-/* COMPONENTE: HEADER               */
 .header {
   position: fixed;
   top: 0;
@@ -92,7 +89,6 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* SEÇÃO: INÍCIO     */
 .hero {
   position: relative;
   height: calc(100vh - var(--header-height));
@@ -126,7 +122,6 @@ body {
 .btn-hero { background: var(--color-secondary); color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: background 0.3s ease, color 0.3s ease; display: inline-block; }
 .btn-hero:hover { background: var(--color-accent); color: var(--color-text); }
 
-/* SEÇÃO: SOBRE                     */
 .sobre { padding: calc(var(--spacing-unit) * 10) 0; text-align: center; }
 .sobre .container { padding-left: calc(var(--spacing-unit) * 2); padding-right: calc(var(--spacing-unit) * 2); }
 .sobre h2 { color: var(--color-secondary); margin-bottom: calc(var(--spacing-unit) * 2.5); font-size: 2rem; }
@@ -137,7 +132,6 @@ body {
 .valor-card h3 { color: var(--color-primary); margin-bottom: calc(var(--spacing-unit) * 1.25); }
 .valor-card p { font-size: 0.95rem; color: #555; text-align: center; }
 
-/* SEÇÃO: NOTÍCIAS    */
 .noticias-dinamicas { padding: calc(var(--spacing-unit) * 10) 0; text-align: center; background: #f9f9f9; }
 .noticias-dinamicas .container { padding-left: calc(var(--spacing-unit) * 2); padding-right: calc(var(--spacing-unit) * 2); }
 .noticias-dinamicas h2 { color: var(--color-secondary); margin-bottom: calc(var(--spacing-unit) * 5); font-size: 2rem; }
@@ -150,7 +144,6 @@ body {
 .card a, .btn-ver-mais { color: var(--color-secondary); text-decoration: none; font-weight: bold; display: inline-block; margin-top: calc(var(--spacing-unit)); background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; font-size: inherit; }
 .card a:hover, .btn-ver-mais:hover { text-decoration: underline; }
 
-/* SEÇÃO: CONTATO       */
 .contato-section {
   padding: calc(var(--spacing-unit) * 7.5) 0;
   background: var(--color-primary);
@@ -207,7 +200,6 @@ body {
   }
 }
 
-/* SEÇÕES LOGIN E PORTAIS            */
 .portal-login { margin-top: 0; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); padding: calc(var(--spacing-unit) * 10) calc(var(--spacing-unit) * 2.5); text-align: center; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 .login-container { background: var(--color-background); color: var(--color-text); max-width: 400px; width: 100%; border-radius: 10px; padding: calc(var(--spacing-unit) * 3.75); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
 .login-container h2 { margin-bottom: calc(var(--spacing-unit) * 2.5); color: var(--color-secondary); }
@@ -216,7 +208,6 @@ body {
 .login-form__input { padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 100%; }
 .login-form__button { background: var(--color-primary); color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-/* CONTEÚDO PÓS-LOGIN                 */
 .portal-conteudo { padding: calc(var(--spacing-unit) * 5) 20px 40px; min-height: calc(100vh - var(--header-height)); background-color: #f9f9f9; }
 .portal-conteudo h2 { color: var(--color-secondary); margin-bottom: 2rem; text-align: center; }
 .portal-conteudo p { text-align: center; }
@@ -274,7 +265,6 @@ body {
 .btn-remover-aluno { background-color: var(--color-secondary); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; line-height: 30px; font-size: 1.1rem; flex-shrink: 0; }
 .btn-remover-aluno:hover { background-color: #a52828; }
 
-/* Patch mínimo: botões "editar" com aparência do botão primário (azul) */
 .btn-editar-noticia,
 .btn-editar-disciplina, 
 .btn-editar-turma, 
@@ -303,18 +293,14 @@ body {
   transform: translateY(-1px);
 }
 
-/* hover */
 [class*="btn-editar"]:hover {
   filter: brightness(.95);
   transform: translateY(-1px);
 }
 
-/* preserva botões de exclusão ícone (não transformar em azul) */
 [class*="btn-excluir"], [class*="btn-remover"] {
-  /* sem alteração aqui — mantém estilo atual de excluir */
 }
 
-/* Estilos para botões de editar/excluir professores e responsáveis */
 .btn-editar-professor,
 .btn-editar-responsavel {
   background: var(--color-primary, #5DA7E3);
@@ -352,7 +338,6 @@ body {
   background-color: #a52828;
 }
 
-/* ESTILOS DO MODAL (NOTAS E NOTÍCIAS)    */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 200; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .modal-overlay[style*="display: flex"] { opacity: 1; visibility: visible; }
 .modal-content { background-color: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative; transform: scale(0.9); transition: transform 0.3s ease; }
@@ -362,7 +347,6 @@ body {
 #modal-noticia-detalhes { text-align: left; line-height: 1.7; margin-top: 15px; color: var(--color-text); }
 .modal-save-button { display: block; width: 100%; margin-top: 20px; padding: 15px; border: none; border-radius: 5px; background-color: var(--color-secondary); color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 
-/* Tabela de Boletim */
 .boletim-container { overflow-x: auto; }
 .boletim-container table { width: 100%; border-collapse: collapse; margin-top: 20px; }
 .boletim-container th, .boletim-container td { border: 1px solid #ddd; padding: 10px; text-align: center; white-space: nowrap; }
@@ -370,7 +354,6 @@ body {
 .boletim-container td:first-child { text-align: left; font-weight: bold; }
 #tabela-boletim input { width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
 
-/* FOOTER E RESPONSIVIDADE          */
 .footer { background: var(--color-secondary); color: white; text-align: center; padding: calc(var(--spacing-unit) * 2); }
 .menu-hamburguer { display: none; flex-direction: column; justify-content: space-around; width: 30px; height: 24px; background: transparent; border: none; cursor: pointer; z-index: 110; }
 .menu-hamburguer__linha { width: 30px; height: 3px; background-color: white; border-radius: 10px; }
