@@ -1,8 +1,10 @@
 🎓 Escola Municipal Prof. Peri Coronel - Sistema de Gestão Escolar
+
 Sistema web completo para gestão escolar desenvolvido com Firebase, incluindo portais para administradores, professores e responsáveis.
 
 🚀 Funcionalidades
-Portal do Administrador
+
+    Portal do Administrador
 ✅ Gestão completa de Notícias (CRUD)
 
 ✅ Gestão de Disciplinas do boletim
@@ -17,7 +19,7 @@ Portal do Administrador
 
 ✅ Sistema de Ano Letivo com histórico automático
 
-Portal do Professor
+    Portal do Professor
 ✅ Visualização de turmas alocadas
 
 ✅ Lançamento de notas (4 bimestres) e faltas
@@ -26,12 +28,13 @@ Portal do Professor
 
 ✅ Edição de perfil próprio
 
-Portal do Responsável
+    Portal do Responsável
 ✅ Visualização de boletim completo dos filhos
 
 ✅ Consulta de notas e faltas por bimestre
 
-🧪 Como Testar
+
+    🧪 Como Testar
 Para validar as diferentes permissões e fluxos do sistema, utilize as credenciais de homologação abaixo:
 
 1. Painel do Administrador (Gestão Total)
@@ -55,7 +58,8 @@ Senha: elias123
 
 O que testar: Visualização do desempenho acadêmico e notícias da instituição.
 
-🛠️ Tecnologias
+    
+    🛠️ Tecnologias
 Frontend: HTML5, CSS3, JavaScript ES6+
 
 Backend: Firebase (Authentication + Firestore)
